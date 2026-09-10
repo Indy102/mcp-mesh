@@ -165,3 +165,9 @@ investigate daily sample presence and overlap using synthetic tests and an
 independent count checker. They do not produce Health metric totals or enable a
 Health adapter. Real exports and investigation results stay outside this public
 repository.
+
+The [private Health source catalogue](spikes/health_catalogue/README.md) inventories
+exact exported source descriptors and validates user-selected groups against one
+archive. An independent checker verifies catalogue content and optional selection
+membership. It does not establish device identity, choose sources, or calculate
+Health values. Real catalogues and selection records stay outside this checkout.
