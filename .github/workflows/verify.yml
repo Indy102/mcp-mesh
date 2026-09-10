@@ -31,3 +31,5 @@ jobs:
         run: uv run --locked python -m unittest discover -s spikes/health_coverage -p 'test_*.py' -v
       - name: Test private Health catalogue tools with synthetic data
         run: uv run --locked python -m unittest discover -s spikes/health_catalogue -p 'test_*.py' -v
+      - name: Test selected-source steps calculations with synthetic data
+        run: uv run --locked python -m unittest discover -s spikes/health_steps -p 'test_*.py' -v
