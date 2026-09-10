@@ -344,6 +344,69 @@ else:
                 prepare_observations(replace(self.supplied, archive=fifo), self.definition)
             self.assertEqual(caught.exception.code, 'INPUT_INVALID')
 
+    def test_metadata_only_ctime_changes_preserve_input_identity(self):
+        # Same-mode chmod deterministically changes ctime without changing bytes,
+        # inode, size, mtime or mode. This also models incidental filesystem flags.
+        import contextlib
+        import io
+        from adapters.health_observations import __main__ as cli
+        for target in ('catalogue', 'expected_definition'):
+            with self.subTest(target=target), tempfile.TemporaryDirectory() as directory:
+                folder = Path(directory)
+                catalogue = folder/'catalogue'; catalogue.write_bytes(self.cat.read_bytes()); catalogue.chmod(0o600)
+                expected = folder/'definition'; expected.write_bytes(canon(self.definition)); expected.chmod(0o600)
+                changed = catalogue if target == 'catalogue' else expected
+                before = changed.stat(); blob = changed.read_bytes()
+                def metadata_change():
+                    os.chmod(changed, before.st_mode & 0o777)
+                    after = changed.stat()
+                    self.assertNotEqual(before.st_ctime_ns, after.st_ctime_ns)
+                    self.assertEqual((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_mode),
+                                     (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_mode))
+                    self.assertEqual(changed.read_bytes(), blob)
+                if target == 'catalogue':
+                    run = p._run
+                    def with_metadata(tool, args):
+                        run(tool, args)
+                        if tool.endswith('verify_steps.py'):
+                            metadata_change()
+                    with patch.object(p, '_run', side_effect=with_metadata):
+                        result = prepare_observations(replace(self.supplied, catalogue=catalogue), self.definition)
+                    self.assertEqual(result.batch_bytes, self.prepared.batch_bytes)
+                else:
+                    def prepare_then_metadata(*args):
+                        result = prepare_observations(*args)
+                        metadata_change()
+                        return result
+                    argv = ['prepare', '--archive', str(self.archive), '--catalogue', str(catalogue), '--binding', str(self.binding),
+                            '--timezone', 'Etc/UTC', '--as-of', '2026-01-04', '--days', '3', '--report', str(self.report),
+                            '--expected-definition', str(expected), '--output', str(folder/'prepared')]
+                    out = io.StringIO()
+                    with patch.object(cli, 'prepare_observations', side_effect=prepare_then_metadata), contextlib.redirect_stdout(out):
+                        status = cli.main(argv)
+                    self.assertEqual(status, 0, out.getvalue())
+                    self.assertEqual(json.loads((folder/'prepared').read_bytes())['batch'], self.prepared.batch)
+
+    def test_same_size_same_mtime_byte_change_still_refused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            catalogue = Path(directory)/'catalogue'; catalogue.write_bytes(self.cat.read_bytes()); catalogue.chmod(0o600)
+            before = catalogue.stat(); original = catalogue.read_bytes()
+            run = p._run
+            def mutate(tool, args):
+                run(tool, args)
+                if tool.endswith('verify_steps.py'):
+                    changed = original.replace(b'Invented', b'Imagined')
+                    self.assertNotEqual(changed, original)
+                    self.assertEqual(len(changed), len(original))
+                    catalogue.write_bytes(changed)
+                    os.utime(catalogue, ns=(before.st_atime_ns, before.st_mtime_ns))
+                    after = catalogue.stat()
+                    self.assertEqual((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_mode),
+                                     (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_mode))
+            with patch.object(p, '_run', side_effect=mutate), self.assertRaises(PreparationError) as caught:
+                prepare_observations(replace(self.supplied, catalogue=catalogue), self.definition)
+            self.assertEqual(caught.exception.code, 'INPUT_CHANGED')
+
     def test_schema_documents_are_executable(self):
         for schema in c.SCHEMAS.values():
             c.Draft202012Validator.check_schema(schema)

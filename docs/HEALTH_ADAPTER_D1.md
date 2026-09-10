@@ -162,8 +162,12 @@ expected definitions produce DEFINITION_INVALID. Failure never contains a prior 
 
 Every operation makes private 0700 scratch with exclusive 0600 snapshots, cleaned
 on every success/refusal. Originals are not rewritten or chmodded. Each original
-regular file is hashed through one open handle; inode, size, mode, mtime, ctime,
+regular file is hashed through one open handle; inode, size, mode, mtime,
 resolved target and symlink identity are checked across capture and admission.
+Change-time (ctime) and access-time are not content identities: filesystem metadata
+updates can change them while bytes, locator and the retained attributes stay
+identical. Such metadata-only updates do not abort preparation; content SHA-256
+is still rechecked, including when size and mtime are preserved.
 Original locators must remain unchanged. Snapshot identities are checked across
 evaluation and verification. Bytes captured before replay are the only bytes used
 for assembly; changes to the report after replay cause refusal. Requested full

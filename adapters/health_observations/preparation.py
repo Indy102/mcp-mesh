@@ -74,7 +74,10 @@ def _sha(blob):
 
 
 def _signature(info):
-    return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns, info.st_mode)
+    # ctime also changes for incidental filesystem metadata (for example flags).
+    # Content SHA256 plus locator/inode/size/mtime/mode bind the input; metadata-
+    # only drift is not a different measurement input. No OS lock is implied.
+    return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_mode)
 
 
 def _file_identity(path, destination=None):
