@@ -299,7 +299,9 @@ def process_export(member, states: dict[str, FamilyState], timezone: ZoneInfo,
             open_elements.pop()
             if open_elements:
                 open_elements[-1].remove(element)
-    except ElementTree.ParseError as exc:
+    except (ElementTree.ParseError, LookupError) as exc:
+        if isinstance(exc, LookupError) and type(exc) is not LookupError:
+            raise
         raise ProbeError("export.xml is malformed XML") from exc
     return unknown_sleep_count
 

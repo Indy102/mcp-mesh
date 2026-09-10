@@ -358,6 +358,25 @@ class PresenceVerifierTest(unittest.TestCase):
         self.assertEqual(output["checks"]["archive_integrity"], "PASS")
         self.assertEqual(output["checks"]["daily_counts"], "FAIL")
 
+    def test_rejects_unsupported_xml_encoding_without_leaking_parser_details(self) -> None:
+        encoding_token = "unsupported-synthetic-encoding"
+        archive = self.root / "health.zip"
+        xml = f'<?xml version="1.0" encoding="{encoding_token}"?><HealthData/>'
+        with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as output:
+            output.writestr("apple_health_export/export.xml", xml)
+        report = self.write_report(self.report_for(archive))
+
+        completed, output = self.run_verifier(archive, report)
+
+        self.assert_failure(completed, output, "malformed_export_xml")
+        self.assertEqual(output["checks"]["archive_integrity"], "PASS")
+        self.assertEqual(output["checks"]["daily_counts"], "FAIL")
+        self.assertEqual(
+            output["diagnostics"],
+            [{"code": "malformed_export_xml", "message": "export.xml is malformed."}],
+        )
+        self.assertNotIn(encoding_token, completed.stdout)
+
     def test_rejects_missing_or_ambiguous_export_member(self) -> None:
         for members, code in (
             (("other.xml",), "missing_export_xml"),

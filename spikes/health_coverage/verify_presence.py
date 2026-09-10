@@ -395,7 +395,9 @@ def _recompute_counts(path: Path, contract: ReportContract) -> dict[str, dict[da
             try:
                 with archive.open(member, "r") as source:
                     parser.parse(source)
-            except xml.sax.SAXException as error:
+            except (xml.sax.SAXException, LookupError) as error:
+                if isinstance(error, LookupError) and type(error) is not LookupError:
+                    raise
                 raise VerificationError(
                     "malformed_export_xml", "export.xml is malformed."
                 ) from error

@@ -413,6 +413,20 @@ class ProbeCliTests(unittest.TestCase):
                 self.assertNotIn("Must Not Leak", completed.stderr)
                 self.assertNotIn('"status": "MEASURED"', completed.stderr)
 
+    def test_unsupported_xml_encoding_fails_without_leaking_parser_details(self):
+        encoding_token = "unsupported-synthetic-encoding"
+        archive = self.make_archive(
+            f'<?xml version="1.0" encoding="{encoding_token}"?><HealthData/>'
+        )
+
+        completed = self.run_probe(archive)
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertEqual(completed.stdout, "")
+        self.assertEqual(completed.stderr, "probe failed: export.xml is malformed XML\n")
+        self.assertNotIn(encoding_token, completed.stderr)
+        self.assertNotIn("Traceback", completed.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
