@@ -1,0 +1,50 @@
+{
+ "additionalProperties": false,
+ "properties": {
+  "debug": {
+   "default": false,
+   "type": "boolean"
+  },
+  "period_a": {
+   "additionalProperties": false,
+   "properties": {
+    "end": {
+     "format": "date",
+     "type": "string"
+    },
+    "start": {
+     "format": "date",
+     "type": "string"
+    }
+   },
+   "required": [
+    "start",
+    "end"
+   ],
+   "type": "object"
+  },
+  "period_b": {
+   "additionalProperties": false,
+   "properties": {
+    "end": {
+     "format": "date",
+     "type": "string"
+    },
+    "start": {
+     "format": "date",
+     "type": "string"
+    }
+   },
+   "required": [
+    "start",
+    "end"
+   ],
+   "type": "object"
+  }
+ },
+ "required": [
+  "period_a",
+  "period_b"
+ ],
+ "type": "object"
+}

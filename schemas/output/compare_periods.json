@@ -1,0 +1,737 @@
+{
+ "$defs": {
+  "ComparisonPayload": {
+   "additionalProperties": false,
+   "properties": {
+    "comparisons": {
+     "items": {
+      "$ref": "#/$defs/PeriodComparison"
+     },
+     "maxItems": 40,
+     "type": "array"
+    },
+    "generation": {
+     "minimum": 1,
+     "type": "integer"
+    },
+    "payload_type": {
+     "const": "comparison"
+    },
+    "period_a": {
+     "$ref": "#/$defs/DateRange"
+    },
+    "period_b": {
+     "$ref": "#/$defs/DateRange"
+    },
+    "redaction_level": {
+     "enum": [
+      "aggregate",
+      "minimal",
+      "full"
+     ]
+    },
+    "schema_version": {
+     "const": 7
+    },
+    "summary_text": {
+     "type": "string"
+    },
+    "truncation": {
+     "$ref": "#/$defs/Truncation"
+    }
+   },
+   "required": [
+    "schema_version",
+    "payload_type",
+    "generation",
+    "period_a",
+    "period_b",
+    "comparisons",
+    "truncation",
+    "redaction_level",
+    "summary_text"
+   ],
+   "type": "object"
+  },
+  "Coverage": {
+   "additionalProperties": false,
+   "properties": {
+    "dst_affected_dates": {
+     "$ref": "#/$defs/DateList"
+    },
+    "metric_id": {
+     "$ref": "#/$defs/metric_id"
+    },
+    "missing_dates": {
+     "$ref": "#/$defs/DateList"
+    },
+    "omitted_count": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "permanently_missing_dates": {
+     "$ref": "#/$defs/DateList"
+    },
+    "present_days": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "requested_days": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "stale_dates": {
+     "$ref": "#/$defs/DateList"
+    },
+    "sufficient": {
+     "type": "boolean"
+    },
+    "threshold_applied": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "metric_id",
+    "requested_days",
+    "present_days",
+    "missing_dates",
+    "permanently_missing_dates",
+    "dst_affected_dates",
+    "stale_dates",
+    "omitted_count",
+    "sufficient",
+    "threshold_applied"
+   ],
+   "type": "object"
+  },
+  "DateList": {
+   "items": {
+    "$ref": "#/$defs/date"
+   },
+   "maxItems": 50,
+   "type": "array"
+  },
+  "DateRange": {
+   "additionalProperties": false,
+   "properties": {
+    "end": {
+     "$ref": "#/$defs/date"
+    },
+    "start": {
+     "$ref": "#/$defs/date"
+    }
+   },
+   "required": [
+    "start",
+    "end"
+   ],
+   "type": "object"
+  },
+  "ErrorPayload": {
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "generation_mismatch"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "current_generation",
+         "current_store_token"
+        ]
+       },
+       "retryable": {
+        "const": true
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "store_instance_mismatch"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "current_store_token"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "internal_error"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "incident_id"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "storage_error"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "store_path_id",
+         "cause"
+        ]
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "rebuild_unavailable"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "source",
+         "rebuildable",
+         "raw_retained"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    }
+   ],
+   "properties": {
+    "details": {
+     "additionalProperties": false,
+     "properties": {
+      "affected_dates": {
+       "$ref": "#/$defs/DateList"
+      },
+      "argument": {
+       "type": "string"
+      },
+      "cause": {
+       "enum": [
+        "concurrent_swap",
+        "manifest_missing",
+        "manifest_multiple_rows",
+        "schema_version_mismatch",
+        "open_failed",
+        "definition_incomplete"
+       ]
+      },
+      "current_generation": {
+       "minimum": 1,
+       "type": "integer"
+      },
+      "current_store_token": {
+       "$ref": "#/$defs/StoreToken"
+      },
+      "incident_id": {
+       "pattern": "^[0-9a-f]{16}$",
+       "type": "string"
+      },
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "raw_retained": {
+       "type": "boolean"
+      },
+      "rebuildable": {
+       "type": "boolean"
+      },
+      "source": {
+       "type": "string"
+      },
+      "sources_unavailable": {
+       "items": {
+        "additionalProperties": false,
+        "properties": {
+         "reason": {
+          "type": "string"
+         },
+         "source": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "source",
+         "reason"
+        ],
+        "type": "object"
+       },
+       "type": "array"
+      },
+      "store_path_id": {
+       "pattern": "^[0-9a-f]{16}$",
+       "type": "string"
+      },
+      "unknown_hypothesis_id": {
+       "type": "string"
+      },
+      "valid_hypothesis_ids": {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      }
+     },
+     "type": "object"
+    },
+    "error_type": {
+     "enum": [
+      "source_error",
+      "storage_error",
+      "invalid_request",
+      "insufficient_evidence",
+      "generation_mismatch",
+      "store_instance_mismatch",
+      "rebuild_unavailable",
+      "internal_error"
+     ]
+    },
+    "message": {
+     "type": "string"
+    },
+    "payload_type": {
+     "const": "error"
+    },
+    "remediation": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "retryable": {
+     "type": "boolean"
+    },
+    "schema_version": {
+     "const": 7
+    }
+   },
+   "required": [
+    "schema_version",
+    "payload_type",
+    "error_type",
+    "message",
+    "retryable"
+   ],
+   "type": "object"
+  },
+  "PeriodComparison": {
+   "oneOf": [
+    {
+     "additionalProperties": false,
+     "allOf": [
+      {
+       "if": {
+        "properties": {
+         "delta_z": {
+          "type": "null"
+         }
+        },
+        "required": [
+         "delta_z"
+        ]
+       },
+       "then": {
+        "properties": {
+         "meaningful": {
+          "const": false
+         },
+         "undefined_reason": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "undefined_reason"
+        ]
+       }
+      },
+      {
+       "if": {
+        "properties": {
+         "undefined_reason": {
+          "const": "zero_dispersion"
+         }
+        },
+        "required": [
+         "undefined_reason"
+        ]
+       },
+       "then": {
+        "properties": {
+         "delta": {
+          "type": "number"
+         },
+         "flags": {
+          "contains": {
+           "const": "zero_dispersion"
+          }
+         },
+         "pooled_mad": {
+          "const": 0
+         }
+        }
+       }
+      },
+      {
+       "if": {
+        "properties": {
+         "undefined_reason": {
+          "const": "antipodal_circular_delta"
+         }
+        },
+        "required": [
+         "undefined_reason"
+        ]
+       },
+       "then": {
+        "properties": {
+         "delta": {
+          "type": "null"
+         },
+         "delta_z": {
+          "type": "null"
+         },
+         "flags": {
+          "contains": {
+           "const": "antipodal_circular_delta"
+          }
+         }
+        }
+       }
+      },
+      {
+       "if": {
+        "properties": {
+         "delta": {
+          "type": "null"
+         }
+        },
+        "required": [
+         "delta"
+        ]
+       },
+       "then": {
+        "properties": {
+         "undefined_reason": {
+          "const": "antipodal_circular_delta"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "a_present_days": {
+       "minimum": 0,
+       "type": "integer"
+      },
+      "a_value": {
+       "type": "number"
+      },
+      "b_present_days": {
+       "minimum": 0,
+       "type": "integer"
+      },
+      "b_value": {
+       "type": "number"
+      },
+      "coverage_a": {
+       "$ref": "#/$defs/Coverage"
+      },
+      "coverage_b": {
+       "$ref": "#/$defs/Coverage"
+      },
+      "delta": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "delta_z": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "flags": {
+       "items": {
+        "enum": [
+         "zero_dispersion",
+         "daily_mean_of_total",
+         "stale_data",
+         "dst_in_period",
+         "antipodal_circular_delta",
+         "circular_metric"
+        ]
+       },
+       "type": "array"
+      },
+      "meaningful": {
+       "type": "boolean"
+      },
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "pooled_mad": {
+       "minimum": 0,
+       "type": "number"
+      },
+      "status": {
+       "const": "computed"
+      },
+      "undefined_reason": {
+       "enum": [
+        "zero_dispersion",
+        "antipodal_circular_delta",
+        null
+       ],
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     },
+     "required": [
+      "status",
+      "metric_id",
+      "a_value",
+      "b_value",
+      "a_present_days",
+      "b_present_days",
+      "delta",
+      "pooled_mad",
+      "delta_z",
+      "meaningful",
+      "flags",
+      "coverage_a",
+      "coverage_b"
+     ],
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "a_present_days": {
+       "minimum": 0,
+       "type": "integer"
+      },
+      "b_present_days": {
+       "minimum": 0,
+       "type": "integer"
+      },
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "reason": {
+       "enum": [
+        "period_a_incomplete",
+        "period_b_incomplete",
+        "both_incomplete"
+       ]
+      },
+      "status": {
+       "const": "insufficient_data"
+      }
+     },
+     "required": [
+      "status",
+      "metric_id",
+      "reason",
+      "a_present_days",
+      "b_present_days"
+     ],
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "reason": {
+       "enum": [
+        "no_metric_range",
+        "source_failed",
+        "evidence_truncated",
+        "source_unavailable"
+       ]
+      },
+      "status": {
+       "const": "unknown"
+      }
+     },
+     "required": [
+      "status",
+      "metric_id",
+      "reason"
+     ],
+     "type": "object"
+    }
+   ]
+  },
+  "StoreToken": {
+   "additionalProperties": false,
+   "properties": {
+    "generation": {
+     "minimum": 1,
+     "type": "integer"
+    },
+    "store_instance_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": "string"
+    }
+   },
+   "required": [
+    "store_instance_id",
+    "generation"
+   ],
+   "type": "object"
+  },
+  "Truncation": {
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "truncated": {
+        "const": true
+       }
+      },
+      "required": [
+       "truncated"
+      ]
+     },
+     "then": {
+      "properties": {
+       "omitted_count": {
+        "minimum": 1
+       },
+       "truncation_reason": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "truncation_reason"
+      ]
+     }
+    }
+   ],
+   "properties": {
+    "omitted_count": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "truncated": {
+     "type": "boolean"
+    },
+    "truncation_reason": {
+     "enum": [
+      "row_budget",
+      "item_budget",
+      "source_limit",
+      "deadline",
+      "date_list_cap",
+      null
+     ],
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   },
+   "required": [
+    "truncated",
+    "omitted_count"
+   ],
+   "type": "object"
+  },
+  "date": {
+   "format": "date",
+   "type": "string"
+  },
+  "metric_id": {
+   "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+   "type": "string"
+  }
+ },
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "oneOf": [
+  {
+   "$ref": "#/$defs/ComparisonPayload"
+  },
+  {
+   "$ref": "#/$defs/ErrorPayload"
+  }
+ ],
+ "title": "compare_periods result",
+ "type": "object"
+}

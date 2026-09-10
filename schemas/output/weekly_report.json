@@ -1,0 +1,1455 @@
+{
+ "$defs": {
+  "Association": {
+   "oneOf": [
+    {
+     "additionalProperties": false,
+     "allOf": [
+      {
+       "if": {
+        "properties": {
+         "evaluation_family": {
+          "const": "exploratory"
+         }
+        },
+        "required": [
+         "evaluation_family"
+        ]
+       },
+       "then": {
+        "properties": {
+         "evaluation_id": {
+          "type": "null"
+         },
+         "hypothesis_id": {
+          "type": "null"
+         },
+         "m_eligible": {
+          "type": "null"
+         },
+         "m_total": {
+          "type": "null"
+         },
+         "q_value": {
+          "type": "null"
+         },
+         "registry_digest": {
+          "type": "null"
+         },
+         "registry_version": {
+          "type": "null"
+         }
+        }
+       }
+      },
+      {
+       "if": {
+        "properties": {
+         "evaluation_family": {
+          "const": "confirmatory"
+         }
+        },
+        "required": [
+         "evaluation_family"
+        ]
+       },
+       "then": {
+        "properties": {
+         "evaluation_id": {
+          "type": "string"
+         },
+         "hypothesis_id": {
+          "type": "string"
+         },
+         "m_eligible": {
+          "type": "integer"
+         },
+         "m_total": {
+          "type": "integer"
+         },
+         "q_value": {
+          "type": "number"
+         },
+         "registry_digest": {
+          "type": "string"
+         },
+         "registry_version": {
+          "type": "integer"
+         }
+        }
+       }
+      },
+      {
+       "if": {
+        "properties": {
+         "threshold_source": {
+          "const": "absent"
+         }
+        },
+        "required": [
+         "threshold_source"
+        ]
+       },
+       "then": {
+        "properties": {
+         "practical_effect_met": {
+          "const": false
+         }
+        }
+       }
+      },
+      {
+       "if": {
+        "properties": {
+         "back_transform": {
+          "const": "expm1"
+         }
+        },
+        "required": [
+         "back_transform"
+        ]
+       },
+       "then": {
+        "properties": {
+         "back_transform_note": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "back_transform_note"
+        ]
+       }
+      },
+      {
+       "if": {
+        "properties": {
+         "parameter_count": {
+          "const": 9
+         }
+        },
+        "required": [
+         "parameter_count"
+        ]
+       },
+       "then": {
+        "properties": {
+         "flags": {
+          "contains": {
+           "const": "seasonal_control_omitted"
+          }
+         }
+        }
+       }
+      },
+      {
+       "if": {
+        "properties": {
+         "extrapolated": {
+          "const": true
+         }
+        },
+        "required": [
+         "extrapolated"
+        ]
+       },
+       "then": {
+        "properties": {
+         "flags": {
+          "contains": {
+           "const": "extrapolated_practical_effect"
+          }
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "back_transform": {
+       "enum": [
+        "identity",
+        "expm1"
+       ]
+      },
+      "back_transform_note": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "beta": {
+       "type": "number"
+      },
+      "beta_interpretation": {
+       "type": "string"
+      },
+      "beta_standardized": {
+       "type": "number"
+      },
+      "ci_high": {
+       "type": "number"
+      },
+      "ci_low": {
+       "type": "number"
+      },
+      "computed_at": {
+       "format": "date-time",
+       "type": "string"
+      },
+      "direction_as_expected": {
+       "type": "boolean"
+      },
+      "driver_delta_raw": {
+       "type": "number"
+      },
+      "driver_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "driver_reference_value": {
+       "type": "number"
+      },
+      "eligibility_policy_version": {
+       "minimum": 1,
+       "type": "integer"
+      },
+      "estimation_window": {
+       "$ref": "#/$defs/DateRange"
+      },
+      "evaluation_family": {
+       "enum": [
+        "confirmatory",
+        "exploratory"
+       ]
+      },
+      "evaluation_id": {
+       "pattern": "^[0-9a-f]{32}$",
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "extrapolated": {
+       "type": "boolean"
+      },
+      "flags": {
+       "items": {
+        "enum": [
+         "seasonal_control_omitted",
+         "influential_outlier",
+         "wide_ci",
+         "below_practical_threshold",
+         "listwise_deletion_heavy",
+         "extrapolated_practical_effect",
+         "stale_data"
+        ]
+       },
+       "type": "array"
+      },
+      "hypothesis_id": {
+       "pattern": "^H[0-9]+$",
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "lag_days": {
+       "maximum": 7,
+       "minimum": 0,
+       "type": "integer"
+      },
+      "m_eligible": {
+       "minimum": 0,
+       "type": [
+        "integer",
+        "null"
+       ]
+      },
+      "m_total": {
+       "minimum": 0,
+       "type": [
+        "integer",
+        "null"
+       ]
+      },
+      "method_digest": {
+       "pattern": "^[0-9a-f]{32}$",
+       "type": "string"
+      },
+      "method_version": {
+       "minimum": 1,
+       "type": "integer"
+      },
+      "min_practical_effect": {
+       "minimum": 0,
+       "type": "number"
+      },
+      "outcome_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "p_value": {
+       "maximum": 1,
+       "minimum": 0,
+       "type": "number"
+      },
+      "parameter_count": {
+       "enum": [
+        9,
+        11
+       ]
+      },
+      "practical_effect_met": {
+       "type": "boolean"
+      },
+      "practical_effect_raw": {
+       "type": "number"
+      },
+      "practical_effect_scale": {
+       "const": "raw_outcome"
+      },
+      "q_value": {
+       "maximum": 1,
+       "minimum": 0,
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "registry_digest": {
+       "pattern": "^[0-9a-f]{32}$",
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "registry_version": {
+       "minimum": 1,
+       "type": [
+        "integer",
+        "null"
+       ]
+      },
+      "residual_df": {
+       "minimum": 50,
+       "type": "integer"
+      },
+      "status": {
+       "const": "estimated"
+      },
+      "threshold_source": {
+       "enum": [
+        "prespecified_literature",
+        "prespecified_user",
+        "absent"
+       ]
+      },
+      "usable_paired_dates": {
+       "minimum": 60,
+       "type": "integer"
+      }
+     },
+     "required": [
+      "status",
+      "hypothesis_id",
+      "driver_id",
+      "outcome_id",
+      "lag_days",
+      "beta",
+      "beta_interpretation",
+      "beta_standardized",
+      "ci_low",
+      "ci_high",
+      "p_value",
+      "q_value",
+      "usable_paired_dates",
+      "parameter_count",
+      "residual_df",
+      "direction_as_expected",
+      "driver_reference_value",
+      "driver_delta_raw",
+      "practical_effect_raw",
+      "practical_effect_scale",
+      "min_practical_effect",
+      "practical_effect_met",
+      "back_transform",
+      "extrapolated",
+      "evaluation_family",
+      "evaluation_id",
+      "registry_version",
+      "registry_digest",
+      "method_version",
+      "method_digest",
+      "eligibility_policy_version",
+      "m_total",
+      "m_eligible",
+      "threshold_source",
+      "flags",
+      "estimation_window",
+      "computed_at"
+     ],
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "allOf": [
+      {
+       "if": {
+        "properties": {
+         "reasons": {
+          "contains": {
+           "const": "insufficient_durable_history"
+          }
+         }
+        },
+        "required": [
+         "reasons"
+        ]
+       },
+       "then": {
+        "properties": {
+         "assumes_perfect_cadence": {
+          "const": true
+         },
+         "earliest_possible_date": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "earliest_possible_date",
+         "assumes_perfect_cadence"
+        ]
+       }
+      }
+     ],
+     "properties": {
+      "assumes_perfect_cadence": {
+       "type": [
+        "boolean",
+        "null"
+       ]
+      },
+      "driver_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "earliest_possible_date": {
+       "oneOf": [
+        {
+         "$ref": "#/$defs/date"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "evaluation_family": {
+       "enum": [
+        "confirmatory",
+        "exploratory"
+       ]
+      },
+      "hypothesis_id": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "lag_days": {
+       "maximum": 7,
+       "minimum": 0,
+       "type": "integer"
+      },
+      "outcome_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "reasons": {
+       "items": {
+        "enum": [
+         "insufficient_paired_dates",
+         "insufficient_residual_df",
+         "insufficient_durable_history",
+         "constant_series",
+         "driver_missingness",
+         "outcome_missingness",
+         "collinear_with_covariates",
+         "normalization_version_too_old",
+         "dst_contaminated",
+         "permanent_gap_overlap",
+         "stale_range_overlap",
+         "domain_violation"
+        ]
+       },
+       "minItems": 1,
+       "type": "array"
+      },
+      "status": {
+       "const": "ineligible"
+      },
+      "usable_paired_dates": {
+       "minimum": 0,
+       "type": "integer"
+      }
+     },
+     "required": [
+      "status",
+      "driver_id",
+      "outcome_id",
+      "lag_days",
+      "reasons",
+      "usable_paired_dates",
+      "evaluation_family"
+     ],
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "hypothesis_id": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "reason": {
+       "enum": [
+        "cache_miss_budget_exceeded",
+        "inference_disabled",
+        "calibration_gate_unmet"
+       ]
+      },
+      "status": {
+       "const": "not_run"
+      }
+     },
+     "required": [
+      "status",
+      "reason"
+     ],
+     "type": "object"
+    }
+   ]
+  },
+  "Coverage": {
+   "additionalProperties": false,
+   "properties": {
+    "dst_affected_dates": {
+     "$ref": "#/$defs/DateList"
+    },
+    "metric_id": {
+     "$ref": "#/$defs/metric_id"
+    },
+    "missing_dates": {
+     "$ref": "#/$defs/DateList"
+    },
+    "omitted_count": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "permanently_missing_dates": {
+     "$ref": "#/$defs/DateList"
+    },
+    "present_days": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "requested_days": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "stale_dates": {
+     "$ref": "#/$defs/DateList"
+    },
+    "sufficient": {
+     "type": "boolean"
+    },
+    "threshold_applied": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "metric_id",
+    "requested_days",
+    "present_days",
+    "missing_dates",
+    "permanently_missing_dates",
+    "dst_affected_dates",
+    "stale_dates",
+    "omitted_count",
+    "sufficient",
+    "threshold_applied"
+   ],
+   "type": "object"
+  },
+  "DateList": {
+   "items": {
+    "$ref": "#/$defs/date"
+   },
+   "maxItems": 50,
+   "type": "array"
+  },
+  "DateRange": {
+   "additionalProperties": false,
+   "properties": {
+    "end": {
+     "$ref": "#/$defs/date"
+    },
+    "start": {
+     "$ref": "#/$defs/date"
+    }
+   },
+   "required": [
+    "start",
+    "end"
+   ],
+   "type": "object"
+  },
+  "ErrorPayload": {
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "generation_mismatch"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "current_generation",
+         "current_store_token"
+        ]
+       },
+       "retryable": {
+        "const": true
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "store_instance_mismatch"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "current_store_token"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "internal_error"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "incident_id"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "storage_error"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "store_path_id",
+         "cause"
+        ]
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "rebuild_unavailable"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "source",
+         "rebuildable",
+         "raw_retained"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    }
+   ],
+   "properties": {
+    "details": {
+     "additionalProperties": false,
+     "properties": {
+      "affected_dates": {
+       "$ref": "#/$defs/DateList"
+      },
+      "argument": {
+       "type": "string"
+      },
+      "cause": {
+       "enum": [
+        "concurrent_swap",
+        "manifest_missing",
+        "manifest_multiple_rows",
+        "schema_version_mismatch",
+        "open_failed",
+        "definition_incomplete"
+       ]
+      },
+      "current_generation": {
+       "minimum": 1,
+       "type": "integer"
+      },
+      "current_store_token": {
+       "$ref": "#/$defs/StoreToken"
+      },
+      "incident_id": {
+       "pattern": "^[0-9a-f]{16}$",
+       "type": "string"
+      },
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "raw_retained": {
+       "type": "boolean"
+      },
+      "rebuildable": {
+       "type": "boolean"
+      },
+      "source": {
+       "type": "string"
+      },
+      "sources_unavailable": {
+       "items": {
+        "additionalProperties": false,
+        "properties": {
+         "reason": {
+          "type": "string"
+         },
+         "source": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "source",
+         "reason"
+        ],
+        "type": "object"
+       },
+       "type": "array"
+      },
+      "store_path_id": {
+       "pattern": "^[0-9a-f]{16}$",
+       "type": "string"
+      },
+      "unknown_hypothesis_id": {
+       "type": "string"
+      },
+      "valid_hypothesis_ids": {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      }
+     },
+     "type": "object"
+    },
+    "error_type": {
+     "enum": [
+      "source_error",
+      "storage_error",
+      "invalid_request",
+      "insufficient_evidence",
+      "generation_mismatch",
+      "store_instance_mismatch",
+      "rebuild_unavailable",
+      "internal_error"
+     ]
+    },
+    "message": {
+     "type": "string"
+    },
+    "payload_type": {
+     "const": "error"
+    },
+    "remediation": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "retryable": {
+     "type": "boolean"
+    },
+    "schema_version": {
+     "const": 7
+    }
+   },
+   "required": [
+    "schema_version",
+    "payload_type",
+    "error_type",
+    "message",
+    "retryable"
+   ],
+   "type": "object"
+  },
+  "ObservedChange": {
+   "oneOf": [
+    {
+     "additionalProperties": false,
+     "allOf": [
+      {
+       "if": {
+        "properties": {
+         "delta_z": {
+          "type": "null"
+         }
+        },
+        "required": [
+         "delta_z"
+        ]
+       },
+       "then": {
+        "properties": {
+         "baseline_mad": {
+          "const": 0
+         },
+         "flags": {
+          "contains": {
+           "const": "zero_dispersion"
+          }
+         },
+         "meaningful": {
+          "const": false
+         },
+         "undefined_reason": {
+          "const": "zero_dispersion"
+         }
+        },
+        "required": [
+         "undefined_reason"
+        ]
+       }
+      }
+     ],
+     "properties": {
+      "baseline_mad": {
+       "minimum": 0,
+       "type": "number"
+      },
+      "baseline_median": {
+       "type": "number"
+      },
+      "coverage": {
+       "$ref": "#/$defs/Coverage"
+      },
+      "delta": {
+       "type": "number"
+      },
+      "delta_z": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "flags": {
+       "items": {
+        "enum": [
+         "zero_dispersion",
+         "dst_in_week",
+         "permanent_gap_in_baseline",
+         "daily_mean_of_total",
+         "stale_data",
+         "no_threshold_configured"
+        ]
+       },
+       "type": "array"
+      },
+      "meaningful": {
+       "type": "boolean"
+      },
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "status": {
+       "const": "computed"
+      },
+      "undefined_reason": {
+       "enum": [
+        "zero_dispersion",
+        "no_threshold_configured",
+        null
+       ],
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "week_value": {
+       "type": "number"
+      }
+     },
+     "required": [
+      "status",
+      "metric_id",
+      "week_value",
+      "baseline_median",
+      "baseline_mad",
+      "delta",
+      "delta_z",
+      "meaningful",
+      "flags",
+      "coverage"
+     ],
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "coverage": {
+       "$ref": "#/$defs/Coverage"
+      },
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "present_days": {
+       "maximum": 7,
+       "minimum": 0,
+       "type": "integer"
+      },
+      "reason": {
+       "enum": [
+        "target_week_incomplete",
+        "baseline_incomplete"
+       ]
+      },
+      "required_baseline_weeks": {
+       "const": 6
+      },
+      "required_days": {
+       "maximum": 7,
+       "minimum": 1,
+       "type": "integer"
+      },
+      "status": {
+       "const": "insufficient_data"
+      },
+      "valid_baseline_weeks": {
+       "maximum": 8,
+       "minimum": 0,
+       "type": "integer"
+      }
+     },
+     "required": [
+      "status",
+      "metric_id",
+      "reason",
+      "present_days",
+      "required_days",
+      "valid_baseline_weeks",
+      "required_baseline_weeks",
+      "coverage"
+     ],
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "reason": {
+       "enum": [
+        "no_metric_range",
+        "source_failed",
+        "evidence_truncated",
+        "source_unavailable"
+       ]
+      },
+      "status": {
+       "const": "unknown"
+      }
+     },
+     "required": [
+      "status",
+      "metric_id",
+      "reason"
+     ],
+     "type": "object"
+    }
+   ]
+  },
+  "Recommendation": {
+   "additionalProperties": false,
+   "properties": {
+    "caveat": {
+     "const": "This is an observed association in your own data, not evidence that one causes the other."
+    },
+    "driver_delta": {
+     "type": "number"
+    },
+    "hypothesis_id": {
+     "type": "string"
+    },
+    "outcome_delta": {
+     "type": "number"
+    },
+    "practical_effect_raw": {
+     "type": "number"
+    },
+    "practical_effect_scale": {
+     "const": "raw_outcome"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "hypothesis_id",
+    "text",
+    "driver_delta",
+    "outcome_delta",
+    "practical_effect_raw",
+    "practical_effect_scale",
+    "caveat"
+   ],
+   "type": "object"
+  },
+  "ReportPayload": {
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "value_definition_id": {
+        "type": "null"
+       }
+      },
+      "required": [
+       "value_definition_id"
+      ]
+     },
+     "then": {
+      "properties": {
+       "observed_changes": {
+        "items": {
+         "not": {
+          "properties": {
+           "status": {
+            "enum": [
+             "computed",
+             "insufficient_data"
+            ]
+           }
+          },
+          "required": [
+           "status"
+          ]
+         }
+        }
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "recommendations_enabled": {
+        "const": false
+       }
+      },
+      "required": [
+       "recommendations_enabled"
+      ]
+     },
+     "then": {
+      "properties": {
+       "recommendations": {
+        "maxItems": 0
+       },
+       "recommendations_disabled_reason": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "recommendations_disabled_reason"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "recommendations_enabled": {
+        "const": true
+       }
+      },
+      "required": [
+       "recommendations_enabled"
+      ]
+     },
+     "then": {
+      "properties": {
+       "recommendations_disabled_reason": {
+        "type": "null"
+       }
+      }
+     }
+    }
+   ],
+   "properties": {
+    "as_of_date": {
+     "$ref": "#/$defs/date"
+    },
+    "associations": {
+     "items": {
+      "$ref": "#/$defs/Association"
+     },
+     "maxItems": 8,
+     "type": "array"
+    },
+    "evaluation_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "generation": {
+     "minimum": 1,
+     "type": "integer"
+    },
+    "method_caveats": {
+     "items": {
+      "type": "string"
+     },
+     "minItems": 3,
+     "type": "array"
+    },
+    "notes": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "observed_changes": {
+     "items": {
+      "$ref": "#/$defs/ObservedChange"
+     },
+     "maxItems": 40,
+     "type": "array"
+    },
+    "payload_type": {
+     "const": "report"
+    },
+    "policy_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": "string"
+    },
+    "recommendations": {
+     "items": {
+      "$ref": "#/$defs/Recommendation"
+     },
+     "maxItems": 3,
+     "type": "array"
+    },
+    "recommendations_disabled_reason": {
+     "enum": [
+      "thresholds_not_prespecified",
+      "calibration_gate_unmet",
+      "inference_disabled",
+      null
+     ],
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "recommendations_enabled": {
+     "type": "boolean"
+    },
+    "redaction_level": {
+     "enum": [
+      "aggregate",
+      "minimal",
+      "full"
+     ]
+    },
+    "schema_version": {
+     "const": 7
+    },
+    "source_status": {
+     "items": {
+      "$ref": "#/$defs/ReportSourceStatus"
+     },
+     "minItems": 1,
+     "type": "array"
+    },
+    "store_instance_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": "string"
+    },
+    "summary_text": {
+     "type": "string"
+    },
+    "truncation": {
+     "$ref": "#/$defs/Truncation"
+    },
+    "value_definition_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "week": {
+     "$ref": "#/$defs/DateRange"
+    }
+   },
+   "required": [
+    "schema_version",
+    "payload_type",
+    "generation",
+    "store_instance_id",
+    "value_definition_id",
+    "policy_id",
+    "as_of_date",
+    "week",
+    "observed_changes",
+    "source_status",
+    "associations",
+    "recommendations",
+    "recommendations_enabled",
+    "notes",
+    "truncation",
+    "redaction_level",
+    "summary_text",
+    "method_caveats"
+   ],
+   "type": "object"
+  },
+  "ReportSourceStatus": {
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "available": {
+        "const": false
+       }
+      },
+      "required": [
+       "available"
+      ]
+     },
+     "then": {
+      "properties": {
+       "metrics_contributed": {
+        "const": 0
+       },
+       "reason": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "reason"
+      ]
+     }
+    }
+   ],
+   "properties": {
+    "available": {
+     "type": "boolean"
+    },
+    "last_observation_date": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "metrics_contributed": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "reason": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "source": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "source",
+    "available",
+    "reason"
+   ],
+   "type": "object"
+  },
+  "StoreToken": {
+   "additionalProperties": false,
+   "properties": {
+    "generation": {
+     "minimum": 1,
+     "type": "integer"
+    },
+    "store_instance_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": "string"
+    }
+   },
+   "required": [
+    "store_instance_id",
+    "generation"
+   ],
+   "type": "object"
+  },
+  "Truncation": {
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "truncated": {
+        "const": true
+       }
+      },
+      "required": [
+       "truncated"
+      ]
+     },
+     "then": {
+      "properties": {
+       "omitted_count": {
+        "minimum": 1
+       },
+       "truncation_reason": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "truncation_reason"
+      ]
+     }
+    }
+   ],
+   "properties": {
+    "omitted_count": {
+     "minimum": 0,
+     "type": "integer"
+    },
+    "truncated": {
+     "type": "boolean"
+    },
+    "truncation_reason": {
+     "enum": [
+      "row_budget",
+      "item_budget",
+      "source_limit",
+      "deadline",
+      "date_list_cap",
+      null
+     ],
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   },
+   "required": [
+    "truncated",
+    "omitted_count"
+   ],
+   "type": "object"
+  },
+  "date": {
+   "format": "date",
+   "type": "string"
+  },
+  "metric_id": {
+   "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+   "type": "string"
+  }
+ },
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "oneOf": [
+  {
+   "$ref": "#/$defs/ReportPayload"
+  },
+  {
+   "$ref": "#/$defs/ErrorPayload"
+  }
+ ],
+ "title": "weekly_report result",
+ "type": "object"
+}

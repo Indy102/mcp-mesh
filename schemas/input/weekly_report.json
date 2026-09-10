@@ -1,0 +1,18 @@
+{
+ "additionalProperties": false,
+ "properties": {
+  "debug": {
+   "default": false,
+   "type": "boolean"
+  },
+  "include_associations": {
+   "default": true,
+   "type": "boolean"
+  },
+  "week_of": {
+   "format": "date",
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

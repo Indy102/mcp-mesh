@@ -1,0 +1,27 @@
+{
+ "request": {
+  "id": 17,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {}
+   },
+   "arguments": {
+    "store_token": {
+     "generation": 41,
+     "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+    }
+   },
+   "name": "source_status"
+  }
+ },
+ "response": {
+  "error": {
+   "code": -32602,
+   "message": "Missing required _meta field io.modelcontextprotocol/protocolVersion"
+  },
+  "id": 17,
+  "jsonrpc": "2.0"
+ }
+}

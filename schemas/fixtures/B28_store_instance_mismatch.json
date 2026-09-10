@@ -1,0 +1,64 @@
+{
+ "request": {
+  "id": 28,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "end": "2026-08-30",
+    "start": "2026-08-24",
+    "store_token": {
+     "generation": 41,
+     "store_instance_id": "0a1b2c3d4e5f60718293a4b5c6d7e8f9"
+    }
+   },
+   "name": "fetch"
+  }
+ },
+ "response": {
+  "id": 28,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-leaf-health",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"details\":{\"current_store_token\":{\"generation\":41,\"store_instance_id\":\"5f1c9a2e7b34d0864ae1f2c9b7d05e31\"}},\"error_type\":\"store_instance_mismatch\",\"message\":\"store_token names instance 0a1b2c3d\\u2026, this leaf serves 5f1c9a2e\\u2026.\",\"payload_type\":\"error\",\"remediation\":\"Re-read the pointer; the store was destroyed and re-created.\",\"retryable\":false,\"schema_version\":7}",
+     "type": "text"
+    }
+   ],
+   "isError": true,
+   "resultType": "complete",
+   "structuredContent": {
+    "details": {
+     "current_store_token": {
+      "generation": 41,
+      "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+     }
+    },
+    "error_type": "store_instance_mismatch",
+    "message": "store_token names instance 0a1b2c3d\u2026, this leaf serves 5f1c9a2e\u2026.",
+    "payload_type": "error",
+    "remediation": "Re-read the pointer; the store was destroyed and re-created.",
+    "retryable": false,
+    "schema_version": 7
+   }
+  }
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "additionalProperties": false,
+ "properties": {
+  "lag_days": {
+   "default": 0,
+   "maximum": 7,
+   "minimum": 0,
+   "type": "integer"
+  },
+  "max_pairs": {
+   "default": 200,
+   "maximum": 200,
+   "minimum": 1,
+   "type": "integer"
+  },
+  "outcome": {
+   "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

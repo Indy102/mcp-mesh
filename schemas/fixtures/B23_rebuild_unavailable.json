@@ -1,0 +1,39 @@
+{
+ "response": {
+  "id": 23,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"details\":{\"affected_dates\":[\"2026-06-01\",\"2026-06-02\"],\"raw_retained\":false,\"rebuildable\":false,\"source\":\"screentime\"},\"error_type\":\"rebuild_unavailable\",\"message\":\"screentime cannot be re-derived: no raw payload is retained and the source has discarded the underlying records.\",\"payload_type\":\"error\",\"remediation\":\"Existing rows are retained under their original value_definition_id and remain readable. Nothing further can be recovered.\",\"retryable\":false,\"schema_version\":7}",
+     "type": "text"
+    }
+   ],
+   "isError": true,
+   "resultType": "complete",
+   "structuredContent": {
+    "details": {
+     "affected_dates": [
+      "2026-06-01",
+      "2026-06-02"
+     ],
+     "raw_retained": false,
+     "rebuildable": false,
+     "source": "screentime"
+    },
+    "error_type": "rebuild_unavailable",
+    "message": "screentime cannot be re-derived: no raw payload is retained and the source has discarded the underlying records.",
+    "payload_type": "error",
+    "remediation": "Existing rows are retained under their original value_definition_id and remain readable. Nothing further can be recovered.",
+    "retryable": false,
+    "schema_version": 7
+   }
+  }
+ }
+}

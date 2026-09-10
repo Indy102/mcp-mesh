@@ -1,0 +1,66 @@
+{
+ "request": {
+  "id": 15,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "hypothesis_id": "H99"
+   },
+   "name": "association"
+  }
+ },
+ "response": {
+  "id": 15,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"details\":{\"unknown_hypothesis_id\":\"H99\",\"valid_hypothesis_ids\":[\"H1\",\"H2\",\"H3\",\"H4\",\"H5\",\"H6\",\"H7\",\"H8\"]},\"error_type\":\"invalid_request\",\"message\":\"Unknown hypothesis_id 'H99'.\",\"payload_type\":\"error\",\"remediation\":\"Use one of the registered ids, or pass driver and outcome for an exploratory estimate.\",\"retryable\":false,\"schema_version\":7}",
+     "type": "text"
+    }
+   ],
+   "isError": true,
+   "resultType": "complete",
+   "structuredContent": {
+    "details": {
+     "unknown_hypothesis_id": "H99",
+     "valid_hypothesis_ids": [
+      "H1",
+      "H2",
+      "H3",
+      "H4",
+      "H5",
+      "H6",
+      "H7",
+      "H8"
+     ]
+    },
+    "error_type": "invalid_request",
+    "message": "Unknown hypothesis_id 'H99'.",
+    "payload_type": "error",
+    "remediation": "Use one of the registered ids, or pass driver and outcome for an exploratory estimate.",
+    "retryable": false,
+    "schema_version": 7
+   }
+  }
+ }
+}

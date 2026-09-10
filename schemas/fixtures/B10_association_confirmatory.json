@@ -1,0 +1,98 @@
+{
+ "request": {
+  "id": 10,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "hypothesis_id": "H5"
+   },
+   "name": "association"
+  }
+ },
+ "response": {
+  "id": 10,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"association\":{\"back_transform\":\"identity\",\"back_transform_note\":null,\"beta\":-0.118,\"beta_interpretation\":\"minutes of sleep per additional busy minute; both untransformed\",\"beta_standardized\":-0.244,\"ci_high\":-0.035,\"ci_low\":-0.201,\"computed_at\":\"2026-09-06T18:22:41Z\",\"direction_as_expected\":true,\"driver_delta_raw\":120.0,\"driver_id\":\"calendar.busy_minutes_union\",\"driver_reference_value\":310.0,\"eligibility_policy_version\":1,\"estimation_window\":{\"end\":\"2026-08-23\",\"start\":\"2025-09-29\"},\"evaluation_family\":\"confirmatory\",\"evaluation_id\":\"da432e362a16b9476facdeb071958ca0\",\"extrapolated\":false,\"flags\":[],\"hypothesis_id\":\"H5\",\"lag_days\":0,\"m_eligible\":1,\"m_total\":2,\"method_digest\":\"fefa96ab1172af34fda5a01a0f20783f\",\"method_version\":1,\"min_practical_effect\":10.0,\"outcome_id\":\"health.sleep_duration_min\",\"p_value\":0.0061,\"parameter_count\":11,\"practical_effect_met\":true,\"practical_effect_raw\":-14.16,\"practical_effect_scale\":\"raw_outcome\",\"q_value\":0.0061,\"registry_digest\":\"86f7f157329e6576af9aef8de25ede13\",\"registry_version\":1,\"residual_df\":203,\"status\":\"estimated\",\"threshold_source\":\"prespecified_user\",\"usable_paired_dates\":214},\"generation\":41,\"method_caveats\":[\"Findings are observational associations in your own data and are not evidence of cause.\",\"Benjamini-Hochberg at q=0.10 controls the EXPECTED false-discovery proportion under its assumptions. It is not a guarantee about the realized proportion in any single report, and it does not validate the p-values it adjusts.\"],\"payload_type\":\"association\",\"schema_version\":7,\"summary_text\":\"Over 214 paired days, each additional busy calendar minute is associated with 0.118 fewer minutes of sleep (95% CI -0.201 to -0.035). For a 120-minute increase above your typical 310 minutes, this predicts -14.16 minutes of sleep.\"}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "association": {
+     "back_transform": "identity",
+     "back_transform_note": null,
+     "beta": -0.118,
+     "beta_interpretation": "minutes of sleep per additional busy minute; both untransformed",
+     "beta_standardized": -0.244,
+     "ci_high": -0.035,
+     "ci_low": -0.201,
+     "computed_at": "2026-09-06T18:22:41Z",
+     "direction_as_expected": true,
+     "driver_delta_raw": 120.0,
+     "driver_id": "calendar.busy_minutes_union",
+     "driver_reference_value": 310.0,
+     "eligibility_policy_version": 1,
+     "estimation_window": {
+      "end": "2026-08-23",
+      "start": "2025-09-29"
+     },
+     "evaluation_family": "confirmatory",
+     "evaluation_id": "da432e362a16b9476facdeb071958ca0",
+     "extrapolated": false,
+     "flags": [],
+     "hypothesis_id": "H5",
+     "lag_days": 0,
+     "m_eligible": 1,
+     "m_total": 2,
+     "method_digest": "fefa96ab1172af34fda5a01a0f20783f",
+     "method_version": 1,
+     "min_practical_effect": 10.0,
+     "outcome_id": "health.sleep_duration_min",
+     "p_value": 0.0061,
+     "parameter_count": 11,
+     "practical_effect_met": true,
+     "practical_effect_raw": -14.16,
+     "practical_effect_scale": "raw_outcome",
+     "q_value": 0.0061,
+     "registry_digest": "86f7f157329e6576af9aef8de25ede13",
+     "registry_version": 1,
+     "residual_df": 203,
+     "status": "estimated",
+     "threshold_source": "prespecified_user",
+     "usable_paired_dates": 214
+    },
+    "generation": 41,
+    "method_caveats": [
+     "Findings are observational associations in your own data and are not evidence of cause.",
+     "Benjamini-Hochberg at q=0.10 controls the EXPECTED false-discovery proportion under its assumptions. It is not a guarantee about the realized proportion in any single report, and it does not validate the p-values it adjusts."
+    ],
+    "payload_type": "association",
+    "schema_version": 7,
+    "summary_text": "Over 214 paired days, each additional busy calendar minute is associated with 0.118 fewer minutes of sleep (95% CI -0.201 to -0.035). For a 120-minute increase above your typical 310 minutes, this predicts -14.16 minutes of sleep."
+   }
+  }
+ }
+}

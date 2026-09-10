@@ -1,0 +1,9 @@
+{
+ "response": {
+  "error": {
+   "code": -32600,
+   "message": "Invalid Request: missing method"
+  },
+  "jsonrpc": "2.0"
+ }
+}

@@ -1,0 +1,31 @@
+{
+ "request": {
+  "id": 27,
+  "jsonrpc": "2.0",
+  "method": "server/discover",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {},
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "legacy-probe",
+     "version": "0.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "1900-01-01"
+   }
+  }
+ },
+ "response": {
+  "error": {
+   "code": -32022,
+   "data": {
+    "requested": "1900-01-01",
+    "supported": [
+     "2026-07-28"
+    ]
+   },
+   "message": "Unsupported protocol version"
+  },
+  "id": 27,
+  "jsonrpc": "2.0"
+ }
+}

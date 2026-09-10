@@ -1,0 +1,34 @@
+{
+ "request": {
+  "id": 18,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "hypothesis_id": "H5",
+    "lag_days": 3
+   },
+   "name": "association"
+  }
+ },
+ "response": {
+  "error": {
+   "code": -32602,
+   "message": "Invalid arguments for association: lag_days may not accompany hypothesis_id; the registry owns the lag"
+  },
+  "id": 18,
+  "jsonrpc": "2.0"
+ }
+}

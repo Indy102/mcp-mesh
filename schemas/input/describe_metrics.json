@@ -1,0 +1,27 @@
+{
+ "additionalProperties": false,
+ "properties": {
+  "store_token": {
+   "additionalProperties": false,
+   "properties": {
+    "generation": {
+     "minimum": 1,
+     "type": "integer"
+    },
+    "store_instance_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": "string"
+    }
+   },
+   "required": [
+    "store_instance_id",
+    "generation"
+   ],
+   "type": "object"
+  }
+ },
+ "required": [
+  "store_token"
+ ],
+ "type": "object"
+}

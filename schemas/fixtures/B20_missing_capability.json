@@ -1,0 +1,15 @@
+{
+ "response": {
+  "error": {
+   "code": -32021,
+   "data": {
+    "requiredCapabilities": [
+     "elicitation"
+    ]
+   },
+   "message": "Required client capability not declared"
+  },
+  "id": 20,
+  "jsonrpc": "2.0"
+ }
+}

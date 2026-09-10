@@ -1,0 +1,15 @@
+{
+ "additionalProperties": false,
+ "properties": {
+  "source": {
+   "enum": [
+    "health",
+    "calendar",
+    "screentime",
+    "weather",
+    "git"
+   ]
+  }
+ },
+ "type": "object"
+}

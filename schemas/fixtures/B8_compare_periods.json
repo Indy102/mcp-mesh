@@ -1,0 +1,113 @@
+{
+ "request": {
+  "id": 8,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "period_a": {
+     "end": "2026-07-31",
+     "start": "2026-07-01"
+    },
+    "period_b": {
+     "end": "2026-08-31",
+     "start": "2026-08-01"
+    }
+   },
+   "name": "compare_periods"
+  }
+ },
+ "response": {
+  "id": 8,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"comparisons\":[{\"a_present_days\":31,\"a_value\":4.1,\"b_present_days\":31,\"b_value\":2.9,\"coverage_a\":{\"dst_affected_dates\":[],\"metric_id\":\"git.commits_count\",\"missing_dates\":[],\"omitted_count\":0,\"permanently_missing_dates\":[],\"present_days\":31,\"requested_days\":31,\"stale_dates\":[],\"sufficient\":true,\"threshold_applied\":\"min_days_present_per_week=5\"},\"coverage_b\":{\"dst_affected_dates\":[],\"metric_id\":\"git.commits_count\",\"missing_dates\":[],\"omitted_count\":0,\"permanently_missing_dates\":[],\"present_days\":31,\"requested_days\":31,\"stale_dates\":[],\"sufficient\":true,\"threshold_applied\":\"min_days_present_per_week=5\"},\"delta\":-1.2,\"delta_z\":-0.923,\"flags\":[\"daily_mean_of_total\"],\"meaningful\":false,\"metric_id\":\"git.commits_count\",\"pooled_mad\":1.3,\"status\":\"computed\"}],\"generation\":41,\"payload_type\":\"comparison\",\"period_a\":{\"end\":\"2026-07-31\",\"start\":\"2026-07-01\"},\"period_b\":{\"end\":\"2026-08-31\",\"start\":\"2026-08-01\"},\"redaction_level\":\"aggregate\",\"schema_version\":7,\"summary_text\":\"August vs July: mean daily commits 2.9 vs 4.1 (delta -1.2, z -0.92; not meaningful, |z| < 1.0). Dispersion is pooled across both periods; neither is a baseline.\",\"truncation\":{\"omitted_count\":0,\"truncated\":false,\"truncation_reason\":null}}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "comparisons": [
+     {
+      "a_present_days": 31,
+      "a_value": 4.1,
+      "b_present_days": 31,
+      "b_value": 2.9,
+      "coverage_a": {
+       "dst_affected_dates": [],
+       "metric_id": "git.commits_count",
+       "missing_dates": [],
+       "omitted_count": 0,
+       "permanently_missing_dates": [],
+       "present_days": 31,
+       "requested_days": 31,
+       "stale_dates": [],
+       "sufficient": true,
+       "threshold_applied": "min_days_present_per_week=5"
+      },
+      "coverage_b": {
+       "dst_affected_dates": [],
+       "metric_id": "git.commits_count",
+       "missing_dates": [],
+       "omitted_count": 0,
+       "permanently_missing_dates": [],
+       "present_days": 31,
+       "requested_days": 31,
+       "stale_dates": [],
+       "sufficient": true,
+       "threshold_applied": "min_days_present_per_week=5"
+      },
+      "delta": -1.2,
+      "delta_z": -0.923,
+      "flags": [
+       "daily_mean_of_total"
+      ],
+      "meaningful": false,
+      "metric_id": "git.commits_count",
+      "pooled_mad": 1.3,
+      "status": "computed"
+     }
+    ],
+    "generation": 41,
+    "payload_type": "comparison",
+    "period_a": {
+     "end": "2026-07-31",
+     "start": "2026-07-01"
+    },
+    "period_b": {
+     "end": "2026-08-31",
+     "start": "2026-08-01"
+    },
+    "redaction_level": "aggregate",
+    "schema_version": 7,
+    "summary_text": "August vs July: mean daily commits 2.9 vs 4.1 (delta -1.2, z -0.92; not meaningful, |z| < 1.0). Dispersion is pooled across both periods; neither is a baseline.",
+    "truncation": {
+     "omitted_count": 0,
+     "truncated": false,
+     "truncation_reason": null
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,188 @@
+{
+ "request": {
+  "id": 7,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "week_of": "2026-08-26"
+   },
+   "name": "weekly_report"
+  }
+ },
+ "response": {
+  "id": 7,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"as_of_date\":\"2026-09-06\",\"associations\":[{\"assumes_perfect_cadence\":true,\"driver_id\":\"screentime.screen_minutes_total\",\"earliest_possible_date\":\"2026-10-05\",\"evaluation_family\":\"confirmatory\",\"hypothesis_id\":\"H1\",\"lag_days\":1,\"outcome_id\":\"health.sleep_duration_min\",\"reasons\":[\"insufficient_durable_history\"],\"status\":\"ineligible\",\"usable_paired_dates\":31}],\"evaluation_id\":null,\"generation\":41,\"method_caveats\":[\"Findings are observational associations in your own data and are not evidence of cause.\",\"Benjamini-Hochberg at q=0.10 controls the EXPECTED false-discovery proportion under its assumptions. It is not a guarantee about the realized proportion in any single report, and it does not validate the p-values it adjusts.\",\"FDR is controlled within a single evaluation. Weekly re-evaluation is not jointly controlled across weeks; no online-FDR procedure is applied.\"],\"notes\":[\"screentime: 9 permanently missing days before 2026-07-19\",\"H1 needs 29 more paired days; estimate assumes uninterrupted collection\"],\"observed_changes\":[{\"baseline_mad\":22.2,\"baseline_median\":436.0,\"coverage\":{\"dst_affected_dates\":[],\"metric_id\":\"health.sleep_duration_min\",\"missing_dates\":[\"2026-08-27\"],\"omitted_count\":0,\"permanently_missing_dates\":[],\"present_days\":6,\"requested_days\":7,\"stale_dates\":[],\"sufficient\":true,\"threshold_applied\":\"min_days_present_per_week=5\"},\"delta\":-47.0,\"delta_z\":-2.117,\"flags\":[\"daily_mean_of_total\"],\"meaningful\":true,\"metric_id\":\"health.sleep_duration_min\",\"status\":\"computed\",\"undefined_reason\":null,\"week_value\":389.0},{\"coverage\":{\"dst_affected_dates\":[],\"metric_id\":\"screentime.screen_minutes_total\",\"missing_dates\":[\"2026-08-28\",\"2026-08-29\",\"2026-08-30\"],\"omitted_count\":0,\"permanently_missing_dates\":[\"2026-08-28\"],\"present_days\":3,\"requested_days\":7,\"stale_dates\":[],\"sufficient\":false,\"threshold_applied\":\"min_days_present_per_week=5\"},\"metric_id\":\"screentime.screen_minutes_total\",\"present_days\":3,\"reason\":\"target_week_incomplete\",\"required_baseline_weeks\":6,\"required_days\":5,\"status\":\"insufficient_data\",\"valid_baseline_weeks\":4}],\"payload_type\":\"report\",\"policy_id\":\"a3b8e5147f92c60d4e8b1a37c5029df6\",\"recommendations\":[],\"recommendations_disabled_reason\":\"thresholds_not_prespecified\",\"recommendations_enabled\":false,\"redaction_level\":\"aggregate\",\"schema_version\":7,\"source_status\":[{\"available\":true,\"last_observation_date\":\"2026-08-30\",\"metrics_contributed\":1,\"reason\":null,\"source\":\"health\"},{\"available\":true,\"last_observation_date\":\"2026-09-02\",\"metrics_contributed\":1,\"reason\":null,\"source\":\"screentime\"},{\"available\":false,\"last_observation_date\":null,\"metrics_contributed\":0,\"reason\":\"EventKit access not granted\",\"source\":\"calendar\"},{\"available\":true,\"last_observation_date\":\"2026-09-05\",\"metrics_contributed\":1,\"reason\":null,\"source\":\"weather\"},{\"available\":true,\"last_observation_date\":\"2026-09-05\",\"metrics_contributed\":1,\"reason\":null,\"source\":\"git\"}],\"store_instance_id\":\"5f1c9a2e7b34d0864ae1f2c9b7d05e31\",\"summary_text\":\"Week of 2026-08-24. Mean nightly sleep was 389 min, 47 min below your 8-week baseline of 436 min (6 of 7 nights recorded). No associations were eligible this week.\",\"truncation\":{\"omitted_count\":0,\"truncated\":false,\"truncation_reason\":null},\"value_definition_id\":\"7c4e2d9018b6a5f43ce70d21998aa4c6\",\"week\":{\"end\":\"2026-08-30\",\"start\":\"2026-08-24\"}}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "as_of_date": "2026-09-06",
+    "associations": [
+     {
+      "assumes_perfect_cadence": true,
+      "driver_id": "screentime.screen_minutes_total",
+      "earliest_possible_date": "2026-10-05",
+      "evaluation_family": "confirmatory",
+      "hypothesis_id": "H1",
+      "lag_days": 1,
+      "outcome_id": "health.sleep_duration_min",
+      "reasons": [
+       "insufficient_durable_history"
+      ],
+      "status": "ineligible",
+      "usable_paired_dates": 31
+     }
+    ],
+    "evaluation_id": null,
+    "generation": 41,
+    "method_caveats": [
+     "Findings are observational associations in your own data and are not evidence of cause.",
+     "Benjamini-Hochberg at q=0.10 controls the EXPECTED false-discovery proportion under its assumptions. It is not a guarantee about the realized proportion in any single report, and it does not validate the p-values it adjusts.",
+     "FDR is controlled within a single evaluation. Weekly re-evaluation is not jointly controlled across weeks; no online-FDR procedure is applied."
+    ],
+    "notes": [
+     "screentime: 9 permanently missing days before 2026-07-19",
+     "H1 needs 29 more paired days; estimate assumes uninterrupted collection"
+    ],
+    "observed_changes": [
+     {
+      "baseline_mad": 22.2,
+      "baseline_median": 436.0,
+      "coverage": {
+       "dst_affected_dates": [],
+       "metric_id": "health.sleep_duration_min",
+       "missing_dates": [
+        "2026-08-27"
+       ],
+       "omitted_count": 0,
+       "permanently_missing_dates": [],
+       "present_days": 6,
+       "requested_days": 7,
+       "stale_dates": [],
+       "sufficient": true,
+       "threshold_applied": "min_days_present_per_week=5"
+      },
+      "delta": -47.0,
+      "delta_z": -2.117,
+      "flags": [
+       "daily_mean_of_total"
+      ],
+      "meaningful": true,
+      "metric_id": "health.sleep_duration_min",
+      "status": "computed",
+      "undefined_reason": null,
+      "week_value": 389.0
+     },
+     {
+      "coverage": {
+       "dst_affected_dates": [],
+       "metric_id": "screentime.screen_minutes_total",
+       "missing_dates": [
+        "2026-08-28",
+        "2026-08-29",
+        "2026-08-30"
+       ],
+       "omitted_count": 0,
+       "permanently_missing_dates": [
+        "2026-08-28"
+       ],
+       "present_days": 3,
+       "requested_days": 7,
+       "stale_dates": [],
+       "sufficient": false,
+       "threshold_applied": "min_days_present_per_week=5"
+      },
+      "metric_id": "screentime.screen_minutes_total",
+      "present_days": 3,
+      "reason": "target_week_incomplete",
+      "required_baseline_weeks": 6,
+      "required_days": 5,
+      "status": "insufficient_data",
+      "valid_baseline_weeks": 4
+     }
+    ],
+    "payload_type": "report",
+    "policy_id": "a3b8e5147f92c60d4e8b1a37c5029df6",
+    "recommendations": [],
+    "recommendations_disabled_reason": "thresholds_not_prespecified",
+    "recommendations_enabled": false,
+    "redaction_level": "aggregate",
+    "schema_version": 7,
+    "source_status": [
+     {
+      "available": true,
+      "last_observation_date": "2026-08-30",
+      "metrics_contributed": 1,
+      "reason": null,
+      "source": "health"
+     },
+     {
+      "available": true,
+      "last_observation_date": "2026-09-02",
+      "metrics_contributed": 1,
+      "reason": null,
+      "source": "screentime"
+     },
+     {
+      "available": false,
+      "last_observation_date": null,
+      "metrics_contributed": 0,
+      "reason": "EventKit access not granted",
+      "source": "calendar"
+     },
+     {
+      "available": true,
+      "last_observation_date": "2026-09-05",
+      "metrics_contributed": 1,
+      "reason": null,
+      "source": "weather"
+     },
+     {
+      "available": true,
+      "last_observation_date": "2026-09-05",
+      "metrics_contributed": 1,
+      "reason": null,
+      "source": "git"
+     }
+    ],
+    "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31",
+    "summary_text": "Week of 2026-08-24. Mean nightly sleep was 389 min, 47 min below your 8-week baseline of 436 min (6 of 7 nights recorded). No associations were eligible this week.",
+    "truncation": {
+     "omitted_count": 0,
+     "truncated": false,
+     "truncation_reason": null
+    },
+    "value_definition_id": "7c4e2d9018b6a5f43ce70d21998aa4c6",
+    "week": {
+     "end": "2026-08-30",
+     "start": "2026-08-24"
+    }
+   }
+  }
+ }
+}

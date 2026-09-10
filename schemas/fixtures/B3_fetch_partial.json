@@ -1,0 +1,142 @@
+{
+ "request": {
+  "id": 3,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "end": "2026-08-30",
+    "metrics": [
+     "health.sleep_duration_min",
+     "health.hrv_sdnn_ms",
+     "health.vo2max"
+    ],
+    "start": "2026-08-24",
+    "store_token": {
+     "generation": 41,
+     "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+    }
+   },
+   "name": "fetch"
+  }
+ },
+ "response": {
+  "id": 3,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-leaf-health",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"generation\":41,\"metric_status\":[{\"covered\":{\"end\":\"2026-08-30\",\"start\":\"2026-08-24\"},\"known_absent_dates\":[],\"metric_id\":\"health.sleep_duration_min\",\"observed_dates\":[\"2026-08-24\",\"2026-08-25\",\"2026-08-26\",\"2026-08-28\",\"2026-08-29\",\"2026-08-30\"],\"omitted_dates_count\":0,\"permanently_missing_dates\":[],\"present_dates\":6,\"reason\":\"2026-08-27 not determined; its prior observations are retained\",\"status\":\"partial\",\"undetermined_dates\":[\"2026-08-27\"],\"value_definition_id\":\"7c4e2d9018b6a5f43ce70d21998aa4c6\"},{\"covered\":null,\"known_absent_dates\":[],\"metric_id\":\"health.hrv_sdnn_ms\",\"observed_dates\":[],\"omitted_dates_count\":0,\"permanently_missing_dates\":[],\"present_dates\":0,\"reason\":\"HRV series absent from this export; re-export from Health.app\",\"status\":\"failed\",\"undetermined_dates\":[],\"value_definition_id\":null},{\"covered\":null,\"known_absent_dates\":[],\"metric_id\":\"health.vo2max\",\"observed_dates\":[],\"omitted_dates_count\":0,\"permanently_missing_dates\":[],\"present_dates\":0,\"reason\":\"not offered by the health adapter at normalization_version 2\",\"status\":\"unsupported\",\"undetermined_dates\":[],\"value_definition_id\":null}],\"normalization_versions\":{\"health\":2},\"observations\":[{\"date\":\"2026-08-24\",\"metric_id\":\"health.sleep_duration_min\",\"normalization_version\":2,\"quality\":\"measured\",\"sample_count\":1,\"value\":412.0}],\"payload_type\":\"fetch\",\"requested\":{\"end\":\"2026-08-30\",\"start\":\"2026-08-24\"},\"schema_version\":7,\"snapshot_id\":\"sha256:9f2c1d84e0b7a35c\",\"source\":\"health\",\"status\":\"partial\",\"store_token\":{\"generation\":41,\"store_instance_id\":\"5f1c9a2e7b34d0864ae1f2c9b7d05e31\"},\"truncation\":{\"omitted_count\":0,\"truncated\":false,\"truncation_reason\":null}}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "generation": 41,
+    "metric_status": [
+     {
+      "covered": {
+       "end": "2026-08-30",
+       "start": "2026-08-24"
+      },
+      "known_absent_dates": [],
+      "metric_id": "health.sleep_duration_min",
+      "observed_dates": [
+       "2026-08-24",
+       "2026-08-25",
+       "2026-08-26",
+       "2026-08-28",
+       "2026-08-29",
+       "2026-08-30"
+      ],
+      "omitted_dates_count": 0,
+      "permanently_missing_dates": [],
+      "present_dates": 6,
+      "reason": "2026-08-27 not determined; its prior observations are retained",
+      "status": "partial",
+      "undetermined_dates": [
+       "2026-08-27"
+      ],
+      "value_definition_id": "7c4e2d9018b6a5f43ce70d21998aa4c6"
+     },
+     {
+      "covered": null,
+      "known_absent_dates": [],
+      "metric_id": "health.hrv_sdnn_ms",
+      "observed_dates": [],
+      "omitted_dates_count": 0,
+      "permanently_missing_dates": [],
+      "present_dates": 0,
+      "reason": "HRV series absent from this export; re-export from Health.app",
+      "status": "failed",
+      "undetermined_dates": [],
+      "value_definition_id": null
+     },
+     {
+      "covered": null,
+      "known_absent_dates": [],
+      "metric_id": "health.vo2max",
+      "observed_dates": [],
+      "omitted_dates_count": 0,
+      "permanently_missing_dates": [],
+      "present_dates": 0,
+      "reason": "not offered by the health adapter at normalization_version 2",
+      "status": "unsupported",
+      "undetermined_dates": [],
+      "value_definition_id": null
+     }
+    ],
+    "normalization_versions": {
+     "health": 2
+    },
+    "observations": [
+     {
+      "date": "2026-08-24",
+      "metric_id": "health.sleep_duration_min",
+      "normalization_version": 2,
+      "quality": "measured",
+      "sample_count": 1,
+      "value": 412.0
+     }
+    ],
+    "payload_type": "fetch",
+    "requested": {
+     "end": "2026-08-30",
+     "start": "2026-08-24"
+    },
+    "schema_version": 7,
+    "snapshot_id": "sha256:9f2c1d84e0b7a35c",
+    "source": "health",
+    "status": "partial",
+    "store_token": {
+     "generation": 41,
+     "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+    },
+    "truncation": {
+     "omitted_count": 0,
+     "truncated": false,
+     "truncation_reason": null
+    }
+   }
+  }
+ }
+}

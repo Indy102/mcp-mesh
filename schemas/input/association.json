@@ -1,0 +1,60 @@
+{
+ "additionalProperties": false,
+ "oneOf": [
+  {
+   "additionalProperties": false,
+   "properties": {
+    "hypothesis_id": {
+     "pattern": "^H[0-9]+$",
+     "type": "string"
+    }
+   },
+   "required": [
+    "hypothesis_id"
+   ]
+  },
+  {
+   "additionalProperties": false,
+   "properties": {
+    "driver": {
+     "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+     "type": "string"
+    },
+    "lag_days": {
+     "maximum": 7,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "outcome": {
+     "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+     "type": "string"
+    }
+   },
+   "required": [
+    "driver",
+    "outcome"
+   ]
+  }
+ ],
+ "properties": {
+  "driver": {
+   "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+   "type": "string"
+  },
+  "hypothesis_id": {
+   "pattern": "^H[0-9]+$",
+   "type": "string"
+  },
+  "lag_days": {
+   "default": 0,
+   "maximum": 7,
+   "minimum": 0,
+   "type": "integer"
+  },
+  "outcome": {
+   "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

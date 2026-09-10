@@ -1,0 +1,37 @@
+{
+ "response": {
+  "id": 13,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-leaf-health",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"details\":{\"current_generation\":42,\"current_store_token\":{\"generation\":42,\"store_instance_id\":\"5f1c9a2e7b34d0864ae1f2c9b7d05e31\"}},\"error_type\":\"generation_mismatch\",\"message\":\"Leaf holds generation 42; the request specified 41.\",\"payload_type\":\"error\",\"remediation\":\"Re-read store_manifest.generation and repeat the fan-out.\",\"retryable\":true,\"schema_version\":7}",
+     "type": "text"
+    }
+   ],
+   "isError": true,
+   "resultType": "complete",
+   "structuredContent": {
+    "details": {
+     "current_generation": 42,
+     "current_store_token": {
+      "generation": 42,
+      "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+     }
+    },
+    "error_type": "generation_mismatch",
+    "message": "Leaf holds generation 42; the request specified 41.",
+    "payload_type": "error",
+    "remediation": "Re-read store_manifest.generation and repeat the fan-out.",
+    "retryable": true,
+    "schema_version": 7
+   }
+  }
+ }
+}

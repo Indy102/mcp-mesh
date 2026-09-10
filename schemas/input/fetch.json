@@ -1,0 +1,50 @@
+{
+ "additionalProperties": false,
+ "properties": {
+  "end": {
+   "format": "date",
+   "type": "string"
+  },
+  "max_rows": {
+   "default": 2000,
+   "maximum": 2000,
+   "minimum": 1,
+   "type": "integer"
+  },
+  "metrics": {
+   "items": {
+    "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+    "type": "string"
+   },
+   "type": "array"
+  },
+  "start": {
+   "format": "date",
+   "type": "string"
+  },
+  "store_token": {
+   "additionalProperties": false,
+   "properties": {
+    "generation": {
+     "minimum": 1,
+     "type": "integer"
+    },
+    "store_instance_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": "string"
+    }
+   },
+   "required": [
+    "store_instance_id",
+    "generation"
+   ],
+   "type": "object"
+  }
+ },
+ "required": [
+  "store_token",
+  "start",
+  "end"
+ ],
+ "type": "object"
+}

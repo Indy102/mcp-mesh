@@ -1,0 +1,39 @@
+{
+ "response": {
+  "id": 14,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"details\":{\"cause\":\"concurrent_swap\",\"current_generation\":44,\"current_store_token\":{\"generation\":44,\"store_instance_id\":\"5f1c9a2e7b34d0864ae1f2c9b7d05e31\"},\"store_path_id\":\"9c1a7f30b8d54e62\"},\"error_type\":\"storage_error\",\"message\":\"Generation advanced during fan-out; retries exhausted.\",\"payload_type\":\"error\",\"remediation\":\"A collector is swapping frequently. Retry in a few seconds.\",\"retryable\":true,\"schema_version\":7}",
+     "type": "text"
+    }
+   ],
+   "isError": true,
+   "resultType": "complete",
+   "structuredContent": {
+    "details": {
+     "cause": "concurrent_swap",
+     "current_generation": 44,
+     "current_store_token": {
+      "generation": 44,
+      "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+     },
+     "store_path_id": "9c1a7f30b8d54e62"
+    },
+    "error_type": "storage_error",
+    "message": "Generation advanced during fan-out; retries exhausted.",
+    "payload_type": "error",
+    "remediation": "A collector is swapping frequently. Retry in a few seconds.",
+    "retryable": true,
+    "schema_version": 7
+   }
+  }
+ }
+}

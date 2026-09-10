@@ -1,0 +1,67 @@
+{
+ "request": {
+  "id": 6,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "source": "git"
+   },
+   "name": "list_metrics"
+  }
+ },
+ "response": {
+  "id": 6,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"generation\":41,\"metrics\":[{\"description\":\"Commits authored across configured repositories\",\"direction\":\"neutral\",\"emits_structural_zero\":true,\"id\":\"git.commits_count\",\"kind\":\"count\",\"min_days_present_per_week\":5,\"min_meaningful_delta\":1.0,\"normalization_version\":1,\"transform\":\"log1p\",\"unit\":\"count\",\"value_max\":null,\"value_min\":0}],\"payload_type\":\"metric_catalog\",\"schema_version\":7,\"source\":\"git\"}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "generation": 41,
+    "metrics": [
+     {
+      "description": "Commits authored across configured repositories",
+      "direction": "neutral",
+      "emits_structural_zero": true,
+      "id": "git.commits_count",
+      "kind": "count",
+      "min_days_present_per_week": 5,
+      "min_meaningful_delta": 1.0,
+      "normalization_version": 1,
+      "transform": "log1p",
+      "unit": "count",
+      "value_max": null,
+      "value_min": 0
+     }
+    ],
+    "payload_type": "metric_catalog",
+    "schema_version": 7,
+    "source": "git"
+   }
+  }
+ }
+}

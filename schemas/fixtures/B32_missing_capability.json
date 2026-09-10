@@ -1,0 +1,28 @@
+{
+ "request": {
+  "id": 32,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {},
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {},
+   "name": "weekly_report"
+  }
+ },
+ "response": {
+  "error": {
+   "code": -32021,
+   "data": {
+    "requiredCapabilities": [
+     "elicitation"
+    ]
+   },
+   "message": "Required client capability not declared"
+  },
+  "id": 32,
+  "jsonrpc": "2.0"
+ }
+}

@@ -1,0 +1,103 @@
+{
+ "request": {
+  "id": 9,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {},
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "end": "2026-08-23",
+    "metrics": [
+     "calendar.busy_minutes_union"
+    ],
+    "start": "2026-06-29",
+    "store_token": {
+     "generation": 41,
+     "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+    }
+   },
+   "name": "fetch"
+  }
+ },
+ "response": {
+  "id": 9,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-leaf-calendar",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"generation\":41,\"metric_status\":[{\"covered\":{\"end\":\"2026-08-20\",\"start\":\"2026-06-29\"},\"known_absent_dates\":[],\"metric_id\":\"calendar.busy_minutes_union\",\"observed_dates\":[\"2026-06-29\"],\"omitted_dates_count\":52,\"permanently_missing_dates\":[],\"present_dates\":1,\"reason\":\"row budget reached before end of requested range\",\"status\":\"truncated\",\"undetermined_dates\":[],\"value_definition_id\":\"7c4e2d9018b6a5f43ce70d21998aa4c6\"}],\"normalization_versions\":{\"calendar\":1},\"observations\":[{\"date\":\"2026-06-29\",\"metric_id\":\"calendar.busy_minutes_union\",\"normalization_version\":1,\"quality\":\"measured\",\"sample_count\":6,\"value\":285.0}],\"payload_type\":\"fetch\",\"requested\":{\"end\":\"2026-08-23\",\"start\":\"2026-06-29\"},\"schema_version\":7,\"snapshot_id\":\"ekchange:8841fa02\",\"source\":\"calendar\",\"status\":\"partial\",\"store_token\":{\"generation\":41,\"store_instance_id\":\"5f1c9a2e7b34d0864ae1f2c9b7d05e31\"},\"truncation\":{\"omitted_count\":52,\"truncated\":true,\"truncation_reason\":\"row_budget\"}}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "generation": 41,
+    "metric_status": [
+     {
+      "covered": {
+       "end": "2026-08-20",
+       "start": "2026-06-29"
+      },
+      "known_absent_dates": [],
+      "metric_id": "calendar.busy_minutes_union",
+      "observed_dates": [
+       "2026-06-29"
+      ],
+      "omitted_dates_count": 52,
+      "permanently_missing_dates": [],
+      "present_dates": 1,
+      "reason": "row budget reached before end of requested range",
+      "status": "truncated",
+      "undetermined_dates": [],
+      "value_definition_id": "7c4e2d9018b6a5f43ce70d21998aa4c6"
+     }
+    ],
+    "normalization_versions": {
+     "calendar": 1
+    },
+    "observations": [
+     {
+      "date": "2026-06-29",
+      "metric_id": "calendar.busy_minutes_union",
+      "normalization_version": 1,
+      "quality": "measured",
+      "sample_count": 6,
+      "value": 285.0
+     }
+    ],
+    "payload_type": "fetch",
+    "requested": {
+     "end": "2026-08-23",
+     "start": "2026-06-29"
+    },
+    "schema_version": 7,
+    "snapshot_id": "ekchange:8841fa02",
+    "source": "calendar",
+    "status": "partial",
+    "store_token": {
+     "generation": 41,
+     "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+    },
+    "truncation": {
+     "omitted_count": 52,
+     "truncated": true,
+     "truncation_reason": "row_budget"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "request": {
+  "id": 21,
+  "jsonrpc": "2.0",
+  "method": "server/discover",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   }
+  }
+ },
+ "response": {
+  "id": 21,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.6.0"
+    }
+   },
+   "cacheScope": "private",
+   "capabilities": {
+    "extensions": {},
+    "tools": {
+     "listChanged": false
+    }
+   },
+   "instructions": "Local quantified-self store. Call source_status first to see which sources are fresh and whether `mesh sync` is due. weekly_report is descriptive; associations are observational and never causal.",
+   "resultType": "complete",
+   "supportedVersions": [
+    "2026-07-28"
+   ],
+   "ttlMs": 300000
+  }
+ }
+}

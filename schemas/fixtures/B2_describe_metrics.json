@@ -1,0 +1,70 @@
+{
+ "request": {
+  "id": 2,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "store_token": {
+     "generation": 41,
+     "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+    }
+   },
+   "name": "describe_metrics"
+  }
+ },
+ "response": {
+  "id": 2,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-leaf-health",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"generation\":41,\"metrics\":[{\"description\":\"Daily total precipitation\",\"direction\":\"neutral\",\"emits_structural_zero\":true,\"id\":\"weather.precip_mm\",\"kind\":\"total\",\"min_days_present_per_week\":5,\"min_meaningful_delta\":2.0,\"normalization_version\":1,\"transform\":\"log1p\",\"unit\":\"mm\",\"value_max\":500,\"value_min\":0}],\"payload_type\":\"metric_catalog\",\"schema_version\":7,\"source\":\"weather\"}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "generation": 41,
+    "metrics": [
+     {
+      "description": "Daily total precipitation",
+      "direction": "neutral",
+      "emits_structural_zero": true,
+      "id": "weather.precip_mm",
+      "kind": "total",
+      "min_days_present_per_week": 5,
+      "min_meaningful_delta": 2.0,
+      "normalization_version": 1,
+      "transform": "log1p",
+      "unit": "mm",
+      "value_max": 500,
+      "value_min": 0
+     }
+    ],
+    "payload_type": "metric_catalog",
+    "schema_version": 7,
+    "source": "weather"
+   }
+  }
+ }
+}

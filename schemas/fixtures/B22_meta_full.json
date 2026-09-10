@@ -1,0 +1,96 @@
+{
+ "request": {
+  "id": 22,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "com.example.mesh/trace-hint": {
+     "run": "weekly"
+    },
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/logLevel": "warning",
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+    "progressToken": "pt-7741"
+   },
+   "arguments": {
+    "store_token": {
+     "generation": 41,
+     "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+    }
+   },
+   "name": "source_status"
+  }
+ },
+ "response": {
+  "id": 22,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"analysis_timezone\":\"America/Indiana/Indianapolis\",\"analysis_timezone_source\":\"recorded_value_definition\",\"as_of_date\":\"2026-09-06\",\"generation\":41,\"payload_type\":\"status\",\"redaction_level\":\"aggregate\",\"schema_version\":7,\"sources\":[{\"cadence_days\":14,\"canonical_metric_id\":\"screentime.screen_minutes_total\",\"correction_days\":7,\"data_loss_at_risk\":false,\"days_until_loss\":25,\"durable_since\":\"2026-07-19\",\"earliest_unresolved_date\":\"2026-09-03\",\"last_attempt_at\":\"2026-09-03T08:14:00Z\",\"last_attempt_outcome\":\"ok\",\"last_attempt_reason\":null,\"last_observation_date\":\"2026-09-02\",\"last_recoverable_date\":\"2026-09-30\",\"last_successful_sync\":\"2026-09-03T08:14:00Z\",\"loss_deadline_date\":\"2026-10-01\",\"low_retention_mode\":false,\"max_staleness_days\":1,\"normalization_version\":1,\"permanent_gap_days\":9,\"reachable\":true,\"reason\":null,\"recoverable_gap_days\":3,\"retention_days\":28,\"retention_status\":\"finite\",\"source\":\"screentime\",\"source_history_limit_days\":28,\"stale\":true,\"staleness_days\":3,\"sync_overdue\":false,\"unbounded_retention\":false}],\"store_instance_id\":\"5f1c9a2e7b34d0864ae1f2c9b7d05e31\"}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "analysis_timezone": "America/Indiana/Indianapolis",
+    "analysis_timezone_source": "recorded_value_definition",
+    "as_of_date": "2026-09-06",
+    "generation": 41,
+    "payload_type": "status",
+    "redaction_level": "aggregate",
+    "schema_version": 7,
+    "sources": [
+     {
+      "cadence_days": 14,
+      "canonical_metric_id": "screentime.screen_minutes_total",
+      "correction_days": 7,
+      "data_loss_at_risk": false,
+      "days_until_loss": 25,
+      "durable_since": "2026-07-19",
+      "earliest_unresolved_date": "2026-09-03",
+      "last_attempt_at": "2026-09-03T08:14:00Z",
+      "last_attempt_outcome": "ok",
+      "last_attempt_reason": null,
+      "last_observation_date": "2026-09-02",
+      "last_recoverable_date": "2026-09-30",
+      "last_successful_sync": "2026-09-03T08:14:00Z",
+      "loss_deadline_date": "2026-10-01",
+      "low_retention_mode": false,
+      "max_staleness_days": 1,
+      "normalization_version": 1,
+      "permanent_gap_days": 9,
+      "reachable": true,
+      "reason": null,
+      "recoverable_gap_days": 3,
+      "retention_days": 28,
+      "retention_status": "finite",
+      "source": "screentime",
+      "source_history_limit_days": 28,
+      "stale": true,
+      "staleness_days": 3,
+      "sync_overdue": false,
+      "unbounded_retention": false
+     }
+    ],
+    "store_instance_id": "5f1c9a2e7b34d0864ae1f2c9b7d05e31"
+   }
+  }
+ }
+}

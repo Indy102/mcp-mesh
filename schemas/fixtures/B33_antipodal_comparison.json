@@ -1,0 +1,115 @@
+{
+ "request": {
+  "id": 33,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "period_a": {
+     "end": "2026-08-02",
+     "start": "2026-08-01"
+    },
+    "period_b": {
+     "end": "2026-08-04",
+     "start": "2026-08-03"
+    }
+   },
+   "name": "compare_periods"
+  }
+ },
+ "response": {
+  "id": 33,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"comparisons\":[{\"a_present_days\":2,\"a_value\":7.958961871799187e-14,\"b_present_days\":2,\"b_value\":720.0,\"coverage_a\":{\"dst_affected_dates\":[],\"metric_id\":\"screentime.last_use_local_time_min\",\"missing_dates\":[],\"omitted_count\":0,\"permanently_missing_dates\":[],\"present_days\":2,\"requested_days\":2,\"stale_dates\":[],\"sufficient\":true,\"threshold_applied\":\"min_days_present_per_week=5\"},\"coverage_b\":{\"dst_affected_dates\":[],\"metric_id\":\"screentime.last_use_local_time_min\",\"missing_dates\":[],\"omitted_count\":0,\"permanently_missing_dates\":[],\"present_days\":2,\"requested_days\":2,\"stale_dates\":[],\"sufficient\":true,\"threshold_applied\":\"min_days_present_per_week=5\"},\"delta\":null,\"delta_z\":null,\"flags\":[\"circular_metric\",\"antipodal_circular_delta\"],\"meaningful\":false,\"metric_id\":\"screentime.last_use_local_time_min\",\"pooled_mad\":533.736,\"status\":\"computed\",\"undefined_reason\":\"antipodal_circular_delta\"}],\"generation\":41,\"payload_type\":\"comparison\",\"period_a\":{\"end\":\"2026-08-02\",\"start\":\"2026-08-01\"},\"period_b\":{\"end\":\"2026-08-04\",\"start\":\"2026-08-03\"},\"redaction_level\":\"aggregate\",\"schema_version\":7,\"summary_text\":\"Last-use clock time is exactly 12 hours apart between the two periods. The signed circular difference is undefined at the antipode, so no delta, no z and no meaningfulness are reported.\",\"truncation\":{\"omitted_count\":0,\"truncated\":false,\"truncation_reason\":null}}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "comparisons": [
+     {
+      "a_present_days": 2,
+      "a_value": 7.958961871799187e-14,
+      "b_present_days": 2,
+      "b_value": 720.0,
+      "coverage_a": {
+       "dst_affected_dates": [],
+       "metric_id": "screentime.last_use_local_time_min",
+       "missing_dates": [],
+       "omitted_count": 0,
+       "permanently_missing_dates": [],
+       "present_days": 2,
+       "requested_days": 2,
+       "stale_dates": [],
+       "sufficient": true,
+       "threshold_applied": "min_days_present_per_week=5"
+      },
+      "coverage_b": {
+       "dst_affected_dates": [],
+       "metric_id": "screentime.last_use_local_time_min",
+       "missing_dates": [],
+       "omitted_count": 0,
+       "permanently_missing_dates": [],
+       "present_days": 2,
+       "requested_days": 2,
+       "stale_dates": [],
+       "sufficient": true,
+       "threshold_applied": "min_days_present_per_week=5"
+      },
+      "delta": null,
+      "delta_z": null,
+      "flags": [
+       "circular_metric",
+       "antipodal_circular_delta"
+      ],
+      "meaningful": false,
+      "metric_id": "screentime.last_use_local_time_min",
+      "pooled_mad": 533.736,
+      "status": "computed",
+      "undefined_reason": "antipodal_circular_delta"
+     }
+    ],
+    "generation": 41,
+    "payload_type": "comparison",
+    "period_a": {
+     "end": "2026-08-02",
+     "start": "2026-08-01"
+    },
+    "period_b": {
+     "end": "2026-08-04",
+     "start": "2026-08-03"
+    },
+    "redaction_level": "aggregate",
+    "schema_version": 7,
+    "summary_text": "Last-use clock time is exactly 12 hours apart between the two periods. The signed circular difference is undefined at the antipode, so no delta, no z and no meaningfulness are reported.",
+    "truncation": {
+     "omitted_count": 0,
+     "truncated": false,
+     "truncation_reason": null
+    }
+   }
+  }
+ }
+}

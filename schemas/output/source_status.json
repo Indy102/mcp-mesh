@@ -1,0 +1,801 @@
+{
+ "$defs": {
+  "DateList": {
+   "items": {
+    "$ref": "#/$defs/date"
+   },
+   "maxItems": 50,
+   "type": "array"
+  },
+  "ErrorPayload": {
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "generation_mismatch"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "current_generation",
+         "current_store_token"
+        ]
+       },
+       "retryable": {
+        "const": true
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "store_instance_mismatch"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "current_store_token"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "internal_error"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "incident_id"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "storage_error"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "store_path_id",
+         "cause"
+        ]
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "error_type": {
+        "const": "rebuild_unavailable"
+       }
+      },
+      "required": [
+       "error_type"
+      ]
+     },
+     "then": {
+      "properties": {
+       "details": {
+        "required": [
+         "source",
+         "rebuildable",
+         "raw_retained"
+        ]
+       },
+       "retryable": {
+        "const": false
+       }
+      },
+      "required": [
+       "details"
+      ]
+     }
+    }
+   ],
+   "properties": {
+    "details": {
+     "additionalProperties": false,
+     "properties": {
+      "affected_dates": {
+       "$ref": "#/$defs/DateList"
+      },
+      "argument": {
+       "type": "string"
+      },
+      "cause": {
+       "enum": [
+        "concurrent_swap",
+        "manifest_missing",
+        "manifest_multiple_rows",
+        "schema_version_mismatch",
+        "open_failed",
+        "definition_incomplete"
+       ]
+      },
+      "current_generation": {
+       "minimum": 1,
+       "type": "integer"
+      },
+      "current_store_token": {
+       "$ref": "#/$defs/StoreToken"
+      },
+      "incident_id": {
+       "pattern": "^[0-9a-f]{16}$",
+       "type": "string"
+      },
+      "metric_id": {
+       "$ref": "#/$defs/metric_id"
+      },
+      "raw_retained": {
+       "type": "boolean"
+      },
+      "rebuildable": {
+       "type": "boolean"
+      },
+      "source": {
+       "type": "string"
+      },
+      "sources_unavailable": {
+       "items": {
+        "additionalProperties": false,
+        "properties": {
+         "reason": {
+          "type": "string"
+         },
+         "source": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "source",
+         "reason"
+        ],
+        "type": "object"
+       },
+       "type": "array"
+      },
+      "store_path_id": {
+       "pattern": "^[0-9a-f]{16}$",
+       "type": "string"
+      },
+      "unknown_hypothesis_id": {
+       "type": "string"
+      },
+      "valid_hypothesis_ids": {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      }
+     },
+     "type": "object"
+    },
+    "error_type": {
+     "enum": [
+      "source_error",
+      "storage_error",
+      "invalid_request",
+      "insufficient_evidence",
+      "generation_mismatch",
+      "store_instance_mismatch",
+      "rebuild_unavailable",
+      "internal_error"
+     ]
+    },
+    "message": {
+     "type": "string"
+    },
+    "payload_type": {
+     "const": "error"
+    },
+    "remediation": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "retryable": {
+     "type": "boolean"
+    },
+    "schema_version": {
+     "const": 7
+    }
+   },
+   "required": [
+    "schema_version",
+    "payload_type",
+    "error_type",
+    "message",
+    "retryable"
+   ],
+   "type": "object"
+  },
+  "StatusPayload": {
+   "additionalProperties": false,
+   "properties": {
+    "analysis_timezone": {
+     "type": "string"
+    },
+    "analysis_timezone_source": {
+     "enum": [
+      "recorded_value_definition",
+      "configuration"
+     ]
+    },
+    "as_of_date": {
+     "$ref": "#/$defs/date"
+    },
+    "generation": {
+     "minimum": 1,
+     "type": "integer"
+    },
+    "notes": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "payload_type": {
+     "const": "status"
+    },
+    "redaction_level": {
+     "enum": [
+      "aggregate",
+      "minimal",
+      "full"
+     ]
+    },
+    "schema_version": {
+     "const": 7
+    },
+    "sources": {
+     "items": {
+      "additionalProperties": false,
+      "allOf": [
+       {
+        "if": {
+         "properties": {
+          "reachable": {
+           "const": false
+          }
+         },
+         "required": [
+          "reachable"
+         ]
+        },
+        "then": {
+         "properties": {
+          "reason": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "reason"
+         ]
+        }
+       },
+       {
+        "if": {
+         "properties": {
+          "last_successful_sync": {
+           "type": "null"
+          }
+         },
+         "required": [
+          "last_successful_sync"
+         ]
+        },
+        "then": {
+         "properties": {
+          "stale": {
+           "const": true
+          },
+          "staleness_days": {
+           "type": "null"
+          }
+         }
+        }
+       },
+       {
+        "if": {
+         "properties": {
+          "last_attempt_outcome": {
+           "const": "failed"
+          }
+         },
+         "required": [
+          "last_attempt_outcome"
+         ]
+        },
+        "then": {
+         "properties": {
+          "last_attempt_reason": {
+           "type": "string"
+          },
+          "reachable": {
+           "const": false
+          }
+         },
+         "required": [
+          "last_attempt_reason"
+         ]
+        }
+       },
+       {
+        "if": {
+         "properties": {
+          "retention_status": {
+           "const": "finite"
+          }
+         },
+         "required": [
+          "retention_status"
+         ]
+        },
+        "then": {
+         "properties": {
+          "cadence_days": {
+           "minimum": 1,
+           "type": "integer"
+          },
+          "retention_days": {
+           "minimum": 1,
+           "type": "integer"
+          },
+          "unbounded_retention": {
+           "const": false
+          }
+         },
+         "required": [
+          "retention_days",
+          "cadence_days"
+         ]
+        }
+       },
+       {
+        "if": {
+         "properties": {
+          "retention_status": {
+           "const": "unknown"
+          }
+         },
+         "required": [
+          "retention_status"
+         ]
+        },
+        "then": {
+         "properties": {
+          "cadence_days": {
+           "type": "null"
+          },
+          "data_loss_at_risk": {
+           "const": false
+          },
+          "days_until_loss": {
+           "type": "null"
+          },
+          "last_recoverable_date": {
+           "type": "null"
+          },
+          "loss_deadline_date": {
+           "type": "null"
+          },
+          "retention_days": {
+           "type": "null"
+          },
+          "sync_overdue": {
+           "type": "null"
+          },
+          "unbounded_retention": {
+           "const": false
+          }
+         }
+        }
+       },
+       {
+        "if": {
+         "properties": {
+          "retention_status": {
+           "const": "unbounded"
+          }
+         },
+         "required": [
+          "retention_status"
+         ]
+        },
+        "then": {
+         "properties": {
+          "cadence_days": {
+           "type": "null"
+          },
+          "data_loss_at_risk": {
+           "const": false
+          },
+          "days_until_loss": {
+           "type": "null"
+          },
+          "last_recoverable_date": {
+           "type": "null"
+          },
+          "loss_deadline_date": {
+           "type": "null"
+          },
+          "retention_days": {
+           "type": "null"
+          },
+          "sync_overdue": {
+           "type": "null"
+          },
+          "unbounded_retention": {
+           "const": true
+          }
+         }
+        }
+       },
+       {
+        "if": {
+         "properties": {
+          "last_successful_sync": {
+           "type": "null"
+          },
+          "retention_status": {
+           "const": "finite"
+          }
+         },
+         "required": [
+          "retention_status",
+          "last_successful_sync"
+         ]
+        },
+        "then": {
+         "properties": {
+          "sync_overdue": {
+           "const": true
+          }
+         }
+        }
+       },
+       {
+        "if": {
+         "properties": {
+          "earliest_unresolved_date": {
+           "type": "null"
+          }
+         },
+         "required": [
+          "earliest_unresolved_date"
+         ]
+        },
+        "then": {
+         "properties": {
+          "data_loss_at_risk": {
+           "const": false
+          },
+          "days_until_loss": {
+           "type": "null"
+          }
+         }
+        }
+       }
+      ],
+      "properties": {
+       "cadence_days": {
+        "minimum": 1,
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "canonical_metric_id": {
+        "$ref": "#/$defs/metric_id"
+       },
+       "correction_days": {
+        "minimum": 1,
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "data_loss_at_risk": {
+        "type": "boolean"
+       },
+       "days_until_loss": {
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "durable_since": {
+        "oneOf": [
+         {
+          "$ref": "#/$defs/date"
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "earliest_unresolved_date": {
+        "oneOf": [
+         {
+          "$ref": "#/$defs/date"
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "last_attempt_at": {
+        "format": "date-time",
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "last_attempt_outcome": {
+        "enum": [
+         "ok",
+         "empty",
+         "partial",
+         "truncated",
+         "failed",
+         "unsupported",
+         "unknown",
+         null
+        ],
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "last_attempt_reason": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "last_observation_date": {
+        "oneOf": [
+         {
+          "$ref": "#/$defs/date"
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "last_recoverable_date": {
+        "oneOf": [
+         {
+          "$ref": "#/$defs/date"
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "last_successful_sync": {
+        "format": "date-time",
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "loss_deadline_date": {
+        "oneOf": [
+         {
+          "$ref": "#/$defs/date"
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "low_retention_mode": {
+        "type": [
+         "boolean",
+         "null"
+        ]
+       },
+       "max_staleness_days": {
+        "minimum": 1,
+        "type": "integer"
+       },
+       "normalization_version": {
+        "minimum": 1,
+        "type": "integer"
+       },
+       "permanent_gap_days": {
+        "minimum": 0,
+        "type": "integer"
+       },
+       "reachable": {
+        "type": "boolean"
+       },
+       "reason": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "recoverable_gap_days": {
+        "minimum": 0,
+        "type": "integer"
+       },
+       "retention_days": {
+        "minimum": 1,
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "retention_status": {
+        "enum": [
+         "unknown",
+         "finite",
+         "unbounded"
+        ]
+       },
+       "source": {
+        "type": "string"
+       },
+       "source_history_limit_days": {
+        "minimum": 1,
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "stale": {
+        "type": "boolean"
+       },
+       "staleness_days": {
+        "minimum": 0,
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "sync_overdue": {
+        "type": [
+         "boolean",
+         "null"
+        ]
+       },
+       "unbounded_retention": {
+        "type": "boolean"
+       }
+      },
+      "required": [
+       "source",
+       "reachable",
+       "stale",
+       "staleness_days",
+       "max_staleness_days",
+       "last_attempt_at",
+       "last_attempt_outcome",
+       "last_attempt_reason",
+       "permanent_gap_days",
+       "sync_overdue",
+       "data_loss_at_risk",
+       "canonical_metric_id",
+       "retention_status",
+       "unbounded_retention",
+       "normalization_version"
+      ],
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "store_instance_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": "string"
+    }
+   },
+   "required": [
+    "schema_version",
+    "payload_type",
+    "generation",
+    "as_of_date",
+    "analysis_timezone",
+    "analysis_timezone_source",
+    "store_instance_id",
+    "redaction_level",
+    "sources"
+   ],
+   "type": "object"
+  },
+  "StoreToken": {
+   "additionalProperties": false,
+   "properties": {
+    "generation": {
+     "minimum": 1,
+     "type": "integer"
+    },
+    "store_instance_id": {
+     "pattern": "^[0-9a-f]{32}$",
+     "type": "string"
+    }
+   },
+   "required": [
+    "store_instance_id",
+    "generation"
+   ],
+   "type": "object"
+  },
+  "date": {
+   "format": "date",
+   "type": "string"
+  },
+  "metric_id": {
+   "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+   "type": "string"
+  }
+ },
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "oneOf": [
+  {
+   "$ref": "#/$defs/StatusPayload"
+  },
+  {
+   "$ref": "#/$defs/ErrorPayload"
+  }
+ ],
+ "title": "source_status result",
+ "type": "object"
+}

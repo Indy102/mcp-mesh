@@ -1,0 +1,54 @@
+{
+ "response": {
+  "id": 16,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"details\":{\"sources_unavailable\":[{\"reason\":\"no export archive configured\",\"source\":\"health\"},{\"reason\":\"EventKit access not granted\",\"source\":\"calendar\"},{\"reason\":\"knowledgeC.db unreadable: Full Disk Access not granted\",\"source\":\"screentime\"},{\"reason\":\"no completed range covers the requested week\",\"source\":\"weather\"},{\"reason\":\"no configured repositories\",\"source\":\"git\"}]},\"error_type\":\"insufficient_evidence\",\"message\":\"No source produced data for the requested week.\",\"payload_type\":\"error\",\"remediation\":\"Run `mesh sync`. Calendar and Screen Time additionally require Full Disk Access.\",\"retryable\":false,\"schema_version\":7}",
+     "type": "text"
+    }
+   ],
+   "isError": true,
+   "resultType": "complete",
+   "structuredContent": {
+    "details": {
+     "sources_unavailable": [
+      {
+       "reason": "no export archive configured",
+       "source": "health"
+      },
+      {
+       "reason": "EventKit access not granted",
+       "source": "calendar"
+      },
+      {
+       "reason": "knowledgeC.db unreadable: Full Disk Access not granted",
+       "source": "screentime"
+      },
+      {
+       "reason": "no completed range covers the requested week",
+       "source": "weather"
+      },
+      {
+       "reason": "no configured repositories",
+       "source": "git"
+      }
+     ]
+    },
+    "error_type": "insufficient_evidence",
+    "message": "No source produced data for the requested week.",
+    "payload_type": "error",
+    "remediation": "Run `mesh sync`. Calendar and Screen Time additionally require Full Disk Access.",
+    "retryable": false,
+    "schema_version": 7
+   }
+  }
+ }
+}

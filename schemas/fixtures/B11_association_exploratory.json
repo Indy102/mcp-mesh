@@ -1,0 +1,102 @@
+{
+ "request": {
+  "id": 11,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "driver": "weather.temp_mean_c",
+    "lag_days": 2,
+    "outcome": "git.commits_count"
+   },
+   "name": "association"
+  }
+ },
+ "response": {
+  "id": 11,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"association\":{\"back_transform\":\"expm1\",\"back_transform_note\":\"Outcome is log1p-transformed; the back-transformed value is a median-scale prediction, not a mean.\",\"beta\":0.0091,\"beta_interpretation\":\"log1p(commits) per degC; outcome log1p-transformed\",\"beta_standardized\":0.061,\"ci_high\":0.0325,\"ci_low\":-0.0143,\"computed_at\":\"2026-09-06T18:23:02Z\",\"direction_as_expected\":false,\"driver_delta_raw\":2.0,\"driver_id\":\"weather.temp_mean_c\",\"driver_reference_value\":18.4,\"eligibility_policy_version\":1,\"estimation_window\":{\"end\":\"2026-08-23\",\"start\":\"2025-08-01\"},\"evaluation_family\":\"exploratory\",\"evaluation_id\":null,\"extrapolated\":false,\"flags\":[\"below_practical_threshold\"],\"hypothesis_id\":null,\"lag_days\":2,\"m_eligible\":null,\"m_total\":null,\"method_digest\":\"fefa96ab1172af34fda5a01a0f20783f\",\"method_version\":1,\"min_practical_effect\":1.0,\"outcome_id\":\"git.commits_count\",\"p_value\":0.4462,\"parameter_count\":11,\"practical_effect_met\":false,\"practical_effect_raw\":0.0735,\"practical_effect_scale\":\"raw_outcome\",\"q_value\":null,\"registry_digest\":null,\"registry_version\":null,\"residual_df\":378,\"status\":\"estimated\",\"threshold_source\":\"absent\",\"usable_paired_dates\":389},\"generation\":41,\"method_caveats\":[\"This pair is not in the pre-registered registry; it is exploratory, no correction applies, and q_value is null.\",\"Exploratory results never enter a weekly report and never generate a recommendation.\"],\"payload_type\":\"association\",\"schema_version\":7,\"summary_text\":\"Exploratory: no supported association between mean temperature and commits two days later (n=389, p=0.446, 95% CI -0.0143 to 0.0325). Predicted effect of a 2.0 degC rise is 0.0735 commits.\"}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "association": {
+     "back_transform": "expm1",
+     "back_transform_note": "Outcome is log1p-transformed; the back-transformed value is a median-scale prediction, not a mean.",
+     "beta": 0.0091,
+     "beta_interpretation": "log1p(commits) per degC; outcome log1p-transformed",
+     "beta_standardized": 0.061,
+     "ci_high": 0.0325,
+     "ci_low": -0.0143,
+     "computed_at": "2026-09-06T18:23:02Z",
+     "direction_as_expected": false,
+     "driver_delta_raw": 2.0,
+     "driver_id": "weather.temp_mean_c",
+     "driver_reference_value": 18.4,
+     "eligibility_policy_version": 1,
+     "estimation_window": {
+      "end": "2026-08-23",
+      "start": "2025-08-01"
+     },
+     "evaluation_family": "exploratory",
+     "evaluation_id": null,
+     "extrapolated": false,
+     "flags": [
+      "below_practical_threshold"
+     ],
+     "hypothesis_id": null,
+     "lag_days": 2,
+     "m_eligible": null,
+     "m_total": null,
+     "method_digest": "fefa96ab1172af34fda5a01a0f20783f",
+     "method_version": 1,
+     "min_practical_effect": 1.0,
+     "outcome_id": "git.commits_count",
+     "p_value": 0.4462,
+     "parameter_count": 11,
+     "practical_effect_met": false,
+     "practical_effect_raw": 0.0735,
+     "practical_effect_scale": "raw_outcome",
+     "q_value": null,
+     "registry_digest": null,
+     "registry_version": null,
+     "residual_df": 378,
+     "status": "estimated",
+     "threshold_source": "absent",
+     "usable_paired_dates": 389
+    },
+    "generation": 41,
+    "method_caveats": [
+     "This pair is not in the pre-registered registry; it is exploratory, no correction applies, and q_value is null.",
+     "Exploratory results never enter a weekly report and never generate a recommendation."
+    ],
+    "payload_type": "association",
+    "schema_version": 7,
+    "summary_text": "Exploratory: no supported association between mean temperature and commits two days later (n=389, p=0.446, 95% CI -0.0143 to 0.0325). Predicted effect of a 2.0 degC rise is 0.0735 commits."
+   }
+  }
+ }
+}

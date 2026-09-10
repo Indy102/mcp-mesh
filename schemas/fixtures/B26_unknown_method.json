@@ -1,0 +1,29 @@
+{
+ "request": {
+  "id": 26,
+  "jsonrpc": "2.0",
+  "method": "tools/summon",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   }
+  }
+ },
+ "response": {
+  "error": {
+   "code": -32601,
+   "message": "Method not found: tools/summon"
+  },
+  "id": 26,
+  "jsonrpc": "2.0"
+ }
+}

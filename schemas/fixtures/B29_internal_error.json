@@ -1,0 +1,13 @@
+{
+ "response": {
+  "error": {
+   "code": -32603,
+   "data": {
+    "incident_id": "3f9c02a71b6d4e58"
+   },
+   "message": "Internal error"
+  },
+  "id": 29,
+  "jsonrpc": "2.0"
+ }
+}

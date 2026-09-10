@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+data/
+*.duckdb
+*.duckdb.wal
+export.zip
+*.zip
+*.tar.gz
+.DS_Store
+mesh.json
+report.json
+transcript.txt

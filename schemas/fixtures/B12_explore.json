@@ -1,0 +1,65 @@
+{
+ "request": {
+  "id": 12,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+   "_meta": {
+    "io.modelcontextprotocol/clientCapabilities": {
+     "elicitation": {
+      "form": {}
+     }
+    },
+    "io.modelcontextprotocol/clientInfo": {
+     "name": "claude-code",
+     "version": "2.4.1"
+    },
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+   },
+   "arguments": {
+    "lag_days": 1,
+    "max_pairs": 50,
+    "outcome": "health.sleep_duration_min"
+   },
+   "name": "explore_associations"
+  }
+ },
+ "response": {
+  "id": 12,
+  "jsonrpc": "2.0",
+  "result": {
+   "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+     "name": "mesh-gateway",
+     "version": "0.1.0"
+    }
+   },
+   "content": [
+    {
+     "text": "{\"evaluation_family\":\"exploratory\",\"generation\":41,\"method_caveats\":[\"Exploratory scan: pairs were selected after seeing the data, so these are hypothesis-generating only.\",\"NO multiple-testing correction is applied to exploratory scans. q_value is null for every result and NO error rate is controlled or claimed.\"],\"pairs_tested\":17,\"payload_type\":\"exploration\",\"results\":[],\"schema_version\":7,\"summary_text\":\"Scanned 17 eligible drivers against sleep duration at lag 1. No correction was applied and no error rate is claimed; nothing here may enter a report or a recommendation.\",\"truncation\":{\"omitted_count\":3,\"truncated\":true,\"truncation_reason\":\"item_budget\"}}",
+     "type": "text"
+    }
+   ],
+   "isError": false,
+   "resultType": "complete",
+   "structuredContent": {
+    "evaluation_family": "exploratory",
+    "generation": 41,
+    "method_caveats": [
+     "Exploratory scan: pairs were selected after seeing the data, so these are hypothesis-generating only.",
+     "NO multiple-testing correction is applied to exploratory scans. q_value is null for every result and NO error rate is controlled or claimed."
+    ],
+    "pairs_tested": 17,
+    "payload_type": "exploration",
+    "results": [],
+    "schema_version": 7,
+    "summary_text": "Scanned 17 eligible drivers against sleep duration at lag 1. No correction was applied and no error rate is claimed; nothing here may enter a report or a recommendation.",
+    "truncation": {
+     "omitted_count": 3,
+     "truncated": true,
+     "truncation_reason": "item_budget"
+    }
+   }
+  }
+ }
+}
