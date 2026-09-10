@@ -296,14 +296,24 @@ class PresenceHandler(ContentHandler):
         self.counts = {
             family: {day: 0 for day in contract.expected_dates} for family in FAMILIES
         }
-        utc = timezone.utc
-        self.day_bounds = {
-            day: (
-                datetime.combine(day, time.min, contract.timezone).astimezone(utc),
-                datetime.combine(day + timedelta(days=1), time.min, contract.timezone).astimezone(utc),
+        self.day_bounds: dict[date, tuple[datetime, datetime]] = {}
+        for day in contract.expected_dates:
+            day_start = _convert_timezone(
+                datetime.combine(day, time.min, contract.timezone), timezone.utc
             )
-            for day in contract.expected_dates
-        }
+            day_end = _convert_timezone(
+                datetime.combine(
+                    day + timedelta(days=1), time.min, contract.timezone
+                ),
+                timezone.utc,
+            )
+            if day_start is None or day_end is None:
+                raise VerificationError(
+                    "unrepresentable_report_day",
+                    "A report civil-day boundary cannot be represented.",
+                    date=day.isoformat(),
+                )
+            self.day_bounds[day] = (day_start, day_end)
 
     def startElement(self, name: str, attributes: xml.sax.xmlreader.AttributesImpl) -> None:
         if name != "Record":
@@ -344,7 +354,7 @@ class PresenceHandler(ContentHandler):
             return
 
         for day, (day_start, day_end) in self.day_bounds.items():
-            if start_utc < day_end and end_utc > day_start:
+            if day_start < day_end and start_utc < day_end and end_utc > day_start:
                 self.counts[family][day] += 1
 
 

@@ -87,6 +87,8 @@ class PresenceVerifierTest(unittest.TestCase):
         days: int = 3,
     ) -> dict[str, object]:
         date_sets = {
+            ("0001-01-02", 1): ["0001-01-01"],
+            ("2012-01-01", 3): ["2011-12-29", "2011-12-30", "2011-12-31"],
             ("2024-03-12", 3): ["2024-03-09", "2024-03-10", "2024-03-11"],
             ("2024-11-05", 3): ["2024-11-02", "2024-11-03", "2024-11-04"],
         }
@@ -425,6 +427,57 @@ class PresenceVerifierTest(unittest.TestCase):
                 self.assertEqual(completed.returncode, 0)
                 self.assertEqual(output["status"], "PASS")
                 self.assertEqual(output["checks"]["daily_counts"], "PASS")
+
+    def test_skipped_civil_date_has_no_interval_presence(self) -> None:
+        archive = self.write_archive(
+            [
+                record(
+                    STEP,
+                    "2011-12-29 00:00:00 -1000",
+                    "2011-12-31 23:00:00 +1400",
+                    unit="count",
+                    value="10",
+                )
+            ]
+        )
+        counts = {
+            "steps": [1, 0, 1],
+            "hrv_sdnn": [0, 0, 0],
+            "sleep_asleep": [0, 0, 0],
+            "sleep_in_bed": [0, 0, 0],
+            "sleep_awake": [0, 0, 0],
+        }
+        report = self.write_report(
+            self.report_for(
+                archive,
+                counts,
+                timezone="Pacific/Apia",
+                as_of="2012-01-01",
+                days=3,
+            )
+        )
+
+        completed, output = self.run_verifier(archive, report)
+
+        self.assertEqual(completed.returncode, 0)
+        self.assertEqual(output["status"], "PASS")
+
+    def test_unrepresentable_reporting_day_is_a_structured_failure(self) -> None:
+        archive = self.write_archive([])
+        report = self.write_report(
+            self.report_for(
+                archive,
+                timezone="Etc/GMT-14",
+                as_of="0001-01-02",
+                days=1,
+            )
+        )
+
+        completed, output = self.run_verifier(archive, report)
+
+        self.assert_failure(completed, output, "unrepresentable_report_day")
+        self.assertEqual(output["checks"]["archive_integrity"], "PASS")
+        self.assertEqual(output["checks"]["daily_counts"], "FAIL")
 
     def test_rejects_missing_archive_or_report_with_structured_failure(self) -> None:
         missing_archive = self.root / "missing.zip"
