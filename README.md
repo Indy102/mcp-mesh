@@ -177,3 +177,9 @@ source binding to recorded step quantities. It preserves ambiguity and missing
 observations, and a separate checker recomputes each daily result from the archive
 and pinned timezone rules. Its private reports do not establish complete activity
 days or enable a production Health adapter or inference.
+
+The [proposed Health adapter boundary](docs/superpowers/specs/2026-09-10-health-observation-adapter-design.md)
+keeps verified export observations separate from complete-day metrics. It defines
+immutable batches, explicit uncertainty, and admission checks before a future
+adapter or observation store is built. This design does not enable Health in sync,
+weekly comparisons, or inference.
