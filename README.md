@@ -171,3 +171,9 @@ exact exported source descriptors and validates user-selected groups against one
 archive. An independent checker verifies catalogue content and optional selection
 membership. It does not establish device identity, choose sources, or calculate
 Health values. Real catalogues and selection records stay outside this checkout.
+
+The [standalone steps evaluator](spikes/health_steps/README.md) applies an explicit
+source binding to recorded step quantities. It preserves ambiguity and missing
+observations, and a separate checker recomputes each daily result from the archive
+and pinned timezone rules. Its private reports do not establish complete activity
+days or enable a production Health adapter or inference.
