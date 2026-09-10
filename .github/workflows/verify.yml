@@ -27,3 +27,5 @@ jobs:
           enable-cache: false
       - name: Run all implemented verification tiers
         run: uv run --locked python tools/run_all.py
+      - name: Test standalone Health presence probes with synthetic data
+        run: uv run --locked python -m unittest discover -s spikes/health_coverage -p 'test_*.py' -v
