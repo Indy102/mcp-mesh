@@ -5,8 +5,13 @@ from pathlib import Path
 import sys
 
 # The catalogue oracle's public gate is the only cross-spike dependency.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'health_catalogue'))
-from verify_catalogue import verify as verify_catalogue
+_import_path = sys.path[:]
+try:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'health_catalogue'))
+    from verify_catalogue import verify as verify_catalogue
+finally:
+    sys.path[:] = _import_path
+    del _import_path
 from oracle_core import canonical, digest, reconstruct, strict_read, unchanged
 from oracle_time import Refusal
 

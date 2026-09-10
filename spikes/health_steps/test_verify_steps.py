@@ -62,9 +62,11 @@ def record(start='2024-01-02 01:00:00Z', end='2024-01-02 02:00:00Z', value='1', 
 
 
 class Fixture:
-    def __init__(self, root, records, selected_sources=('chosen',), selected_family='steps', compression=zipfile.ZIP_DEFLATED, tail=''):
+    def __init__(self, root, records, selected_sources=('chosen',), selected_family='steps', compression=zipfile.ZIP_DEFLATED, tail='', xml_transform=None):
         self.archive, self.catalogue, self.binding, self.report = [root / name for name in ('invented.zip', 'catalogue.json', 'binding.json', 'report.json')]
         xml = '<HealthData>' + ''.join('<Record ' + ' '.join(k + '=' + quoteattr(v) for k, v in attrs.items()) + '/>' for attrs in records) + '</HealthData>' + tail
+        if xml_transform is not None:
+            xml = xml_transform(xml)
         with zipfile.ZipFile(self.archive, 'w', compression=compression) as output:
             output.writestr('fiction/export.xml', xml)
         content = self.archive.read_bytes()
@@ -148,7 +150,7 @@ class OracleTests(unittest.TestCase):
         fixture = self.fixture([record(value=None), record(value='')])
         fixture.expected([day(state='blocked', value=None, reasons=['invalid_selected_record', 'selected_quantity_overlap'], selected=counts(2, 2, 2), overlap=True)], counts(2, 2, 2, bad_time=0), counts(2, 2, 2))
         fixture.verify()
-        fixture = self.fixture([record(value='&'), record(value='&')])
+        fixture = self.fixture([record(value='&'), record(value='&')], xml_transform=lambda xml: xml.replace('value="&amp;"', 'value="&#38;"', 1))
         fixture.expected([day(state='blocked', value=None, reasons=['invalid_selected_record', 'selected_quantity_overlap', 'selected_repeat_candidate'], selected=counts(2, 2, 2), repeat=1, overlap=True)], counts(2, 2, 2, bad_time=0), counts(2, 2, 2), archive_repeat=1, window_repeat=1)
         fixture.verify()
 
@@ -454,6 +456,47 @@ class OracleTests(unittest.TestCase):
         fixture.report.write_bytes(wire({'report': content, 'report_sha256': '0'*64}))
         with self.assertRaisesRegex(Refusal, '^REPORT_INVALID$'):
             fixture.verify()
+
+    def test_import_restores_search_path_on_success_and_dependency_failure(self):
+        script = r"""
+import builtins
+from pathlib import Path
+import runpy
+import sys
+
+module_path = Path(sys.argv[1])
+sys.path.insert(0, str(module_path.parent))
+original_path_object = sys.path
+original_entries = sys.path[:]
+original_import = builtins.__import__
+
+
+def synthetic_import(name, *args, **kwargs):
+    if name == 'verify_catalogue' and sys.argv[2] == 'failure':
+        raise ImportError('invented dependency import failure')
+    return original_import(name, *args, **kwargs)
+
+
+builtins.__import__ = synthetic_import
+try:
+    namespace = runpy.run_path(str(module_path), run_name='invented_import_probe')
+except ImportError as error:
+    assert sys.argv[2] == 'failure', str(error)
+    assert str(error) == 'invented dependency import failure'
+else:
+    assert sys.argv[2] == 'success'
+    assert callable(namespace['verify_catalogue'])
+finally:
+    builtins.__import__ = original_import
+assert sys.path is original_path_object
+assert sys.path == original_entries, (original_entries, sys.path)
+"""
+        for outcome in ('success', 'failure'):
+            with self.subTest(outcome=outcome):
+                command = subprocess.run([sys.executable, '-c', script, str(Path(verify_steps.__file__)), outcome], capture_output=True, text=True)
+                self.assertEqual(command.returncode, 0, command.stderr)
+                self.assertEqual(command.stdout, '')
+                self.assertEqual(command.stderr, '')
 
     def test_public_cli_pass_fixed_schema(self):
         fixture, _ = self.basic()
