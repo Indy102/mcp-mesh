@@ -66,15 +66,20 @@ class CatalogueCommandTests(unittest.TestCase):
         self.tempdir.cleanup()
 
     def make_archive(self, xml, *, name="health.zip", member="apple_health_export/export.xml",
-                     extra_members=()):
+                     extra_members=(), compression=zipfile.ZIP_DEFLATED):
         path = self.root / name
-        with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        with zipfile.ZipFile(path, "w", compression=compression) as archive:
             archive.writestr(member, xml)
             for extra_name, contents in extra_members:
                 archive.writestr(extra_name, contents)
         return path
 
     def corrupt_compressed_member(self, path):
+        contents, compressed_start, info = self.compressed_member_details(path)
+        contents[compressed_start] = 0x07  # final block with reserved DEFLATE type
+        path.write_bytes(contents)
+
+    def compressed_member_details(self, path):
         with zipfile.ZipFile(path, "r") as archive:
             info = archive.getinfo("apple_health_export/export.xml")
         contents = bytearray(path.read_bytes())
@@ -83,8 +88,7 @@ class CatalogueCommandTests(unittest.TestCase):
         extra_size = int.from_bytes(contents[header + 28:header + 30], "little")
         compressed_start = header + 30 + filename_size + extra_size
         self.assertGreater(info.compress_size, 0)
-        contents[compressed_start] = 0x07  # final block with reserved DEFLATE type
-        path.write_bytes(contents)
+        return contents, compressed_start, info
 
     def run_tool(self, *arguments):
         return subprocess.run(
@@ -307,6 +311,35 @@ class CatalogueCommandTests(unittest.TestCase):
         )
         self.assertEqual(error, "ARCHIVE_INVALID")
         self.assertFalse(output.exists())
+
+    def test_build_rejects_corrupt_lzma_properties_and_body_as_expected_failures(self):
+        corruptions = (("properties", 4, 0xFF), ("body", 9, None))
+        for index, (label, offset, replacement) in enumerate(corruptions):
+            with self.subTest(label=label):
+                sentinel = f"SENTINEL_LZMA_{label.upper()}_SOURCE"
+                archive = self.make_archive(
+                    export_xml(record(STEP, sourceName=sentinel)),
+                    name=f"lzma-{index}.zip",
+                    compression=zipfile.ZIP_LZMA,
+                )
+                contents, compressed_start, info = self.compressed_member_details(archive)
+                self.assertGreater(info.compress_size, offset)
+                position = compressed_start + offset
+                if replacement is None:
+                    contents[position] ^= 0xFF
+                else:
+                    contents[position] = replacement
+                archive.write_bytes(contents)
+
+                output = self.root / f"lzma-{index}-output.json"
+                completed, _ = self.build(archive, output)
+                error = self.assert_safe_failure(
+                    completed,
+                    "build",
+                    forbidden=(archive, output, sentinel),
+                )
+                self.assertEqual(error, "ARCHIVE_INVALID")
+                self.assertFalse(output.exists())
 
     def test_xml_namespaces_do_not_match_exact_unqualified_elements(self):
         foreign_root = self.make_archive(

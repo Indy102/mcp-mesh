@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import lzma
 import math
 import os
 import re
@@ -242,6 +243,7 @@ def compute_catalogue(archive_path: Path) -> dict:
         EOFError,
         RuntimeError,
         ValueError,
+        lzma.LZMAError,
         zipfile.BadZipFile,
         zipfile.LargeZipFile,
         zlib.error,
