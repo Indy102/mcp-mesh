@@ -74,6 +74,18 @@ class CatalogueCommandTests(unittest.TestCase):
                 archive.writestr(extra_name, contents)
         return path
 
+    def corrupt_compressed_member(self, path):
+        with zipfile.ZipFile(path, "r") as archive:
+            info = archive.getinfo("apple_health_export/export.xml")
+        contents = bytearray(path.read_bytes())
+        header = info.header_offset
+        filename_size = int.from_bytes(contents[header + 26:header + 28], "little")
+        extra_size = int.from_bytes(contents[header + 28:header + 30], "little")
+        compressed_start = header + 30 + filename_size + extra_size
+        self.assertGreater(info.compress_size, 0)
+        contents[compressed_start] = 0x07  # final block with reserved DEFLATE type
+        path.write_bytes(contents)
+
     def run_tool(self, *arguments):
         return subprocess.run(
             [sys.executable, str(TOOL), *map(str, arguments)],
@@ -280,6 +292,58 @@ class CatalogueCommandTests(unittest.TestCase):
             internal_envelope["catalogue"]["families"]["steps"][0]["descriptor"][0],
             ["present", "Internal Source"],
         )
+
+    def test_build_rejects_corrupt_compressed_member_as_fixed_expected_failure(self):
+        archive = self.make_archive(export_xml(
+            record(STEP, sourceName="SENTINEL_CORRUPT_MEMBER_SOURCE"),
+        ))
+        self.corrupt_compressed_member(archive)
+        output = self.root / "SENTINEL_CORRUPT_MEMBER_OUTPUT.json"
+        completed, _ = self.build(archive, output)
+        error = self.assert_safe_failure(
+            completed,
+            "build",
+            forbidden=(archive, output, "SENTINEL_CORRUPT_MEMBER_SOURCE"),
+        )
+        self.assertEqual(error, "ARCHIVE_INVALID")
+        self.assertFalse(output.exists())
+
+    def test_xml_namespaces_do_not_match_exact_unqualified_elements(self):
+        foreign_root = self.make_archive(
+            (
+                '<HealthData xmlns="urn:not-health">'
+                f'<Record type="{STEP}" sourceName="SENTINEL_FOREIGN_ROOT"/>'
+                "</HealthData>"
+            ).encode("utf-8"),
+            name="foreign-root.zip",
+        )
+        foreign_output = self.root / "foreign-root.json"
+        completed, _ = self.build(foreign_root, foreign_output)
+        self.assert_safe_failure(
+            completed,
+            "build",
+            forbidden=(foreign_root, foreign_output, "SENTINEL_FOREIGN_ROOT"),
+        )
+        self.assertFalse(foreign_output.exists())
+
+        mixed = self.make_archive(
+            (
+                '<HealthData xmlns:foreign="urn:not-health">'
+                f'<foreign:Record type="{STEP}" sourceName="SENTINEL_FOREIGN_RECORD"/>'
+                f'<Record type="{STEP}" sourceName="Local"/>'
+                "</HealthData>"
+            ).encode("utf-8"),
+            name="foreign-record.zip",
+        )
+        envelope, output = self.build_catalogue(mixed, self.root / "foreign-record.json")
+        catalogue = envelope["catalogue"]
+        self.assertEqual(catalogue["record_count_all_types"], 1)
+        self.assertEqual(len(catalogue["families"]["steps"]), 1)
+        self.assertEqual(
+            catalogue["families"]["steps"][0]["descriptor"][0],
+            ["present", "Local"],
+        )
+        self.assertNotIn("SENTINEL_FOREIGN_RECORD", output.read_text(encoding="ascii"))
 
     def test_output_guard_rejects_checkout_alias_existing_and_missing_parent(self):
         archive = self.make_archive(export_xml(record(STEP, sourceName="Safe")))
@@ -554,6 +618,14 @@ class CatalogueCommandTests(unittest.TestCase):
 
         completed = self.run_tool("build", "--archive", "SENTINEL_ARGUMENT")
         self.assert_safe_failure(completed, "build", forbidden=("SENTINEL_ARGUMENT",))
+
+        completed = self.run_tool("build", "--help")
+        error = self.assert_safe_failure(completed, "build")
+        self.assertEqual(error, "CLI_USAGE")
+
+        completed = self.run_tool("--help")
+        error = self.assert_safe_failure(completed, "unknown")
+        self.assertEqual(error, "CLI_USAGE")
 
     def test_unexpected_programmer_failure_is_fixed_failure_not_success(self):
         output = io.StringIO()

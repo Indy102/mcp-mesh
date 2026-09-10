@@ -12,6 +12,7 @@ import re
 import sys
 import uuid
 import zipfile
+import zlib
 from collections import Counter
 from pathlib import Path, PurePosixPath
 from xml.parsers import expat
@@ -181,7 +182,7 @@ class _ExportAccumulator:
 
 def _parse_export(member) -> _ExportAccumulator:
     state = _ExportAccumulator()
-    parser = expat.ParserCreate()
+    parser = expat.ParserCreate(namespace_separator="\x1f")
     parser.StartElementHandler = state.start_element
     parser.EndElementHandler = state.end_element
     parser.StartDoctypeDeclHandler = state.start_doctype
@@ -243,6 +244,7 @@ def compute_catalogue(archive_path: Path) -> dict:
         ValueError,
         zipfile.BadZipFile,
         zipfile.LargeZipFile,
+        zlib.error,
     ):
         raise CatalogueError("ARCHIVE_INVALID") from None
 
@@ -527,12 +529,12 @@ def bind_command(
 
 
 def _parser() -> SafeArgumentParser:
-    parser = SafeArgumentParser(add_help=True)
+    parser = SafeArgumentParser(add_help=False)
     commands = parser.add_subparsers(dest="operation", required=True)
-    build = commands.add_parser("build")
+    build = commands.add_parser("build", add_help=False)
     build.add_argument("--archive", required=True, type=Path)
     build.add_argument("--output", required=True, type=Path)
-    bind = commands.add_parser("bind")
+    bind = commands.add_parser("bind", add_help=False)
     bind.add_argument("--archive", required=True, type=Path)
     bind.add_argument("--catalogue", required=True, type=Path)
     bind.add_argument("--request", required=True, type=Path)
