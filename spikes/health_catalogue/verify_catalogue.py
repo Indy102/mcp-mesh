@@ -282,7 +282,10 @@ class _HealthAccumulator:
 
 def _parse_health_xml(stream: object) -> _HealthAccumulator:
     accumulator = _HealthAccumulator()
-    parser = expat.ParserCreate()
+    # Namespace expansion makes a qualified name visibly different from the exact
+    # unqualified Health export names required by the contract. Without it, Expat
+    # reports default-namespaced elements by local name alone.
+    parser = expat.ParserCreate(namespace_separator="}")
     parser.StartElementHandler = accumulator.start
     parser.EndElementHandler = accumulator.end
 
@@ -508,7 +511,10 @@ def _result(status: str, diagnostic: str | None, binding_requested: bool) -> dic
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = _SafeArgumentParser(description=__doc__)
+    # Help is deliberately handled as an invalid verification invocation. The CLI
+    # contract requires every invocation result to be one fixed JSON envelope;
+    # argparse's default help action prints free-form text and exits outside main.
+    parser = _SafeArgumentParser(description=__doc__, add_help=False)
     parser.add_argument("--archive", required=True, type=Path)
     parser.add_argument("--catalogue", required=True, type=Path)
     parser.add_argument("--binding", type=Path)

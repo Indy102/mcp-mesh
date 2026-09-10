@@ -301,6 +301,46 @@ class VerifierTests(unittest.TestCase):
                 self._write_zip(archive, [("export.xml", xml)])
                 self._assert_fail(self._run(archive=archive), "XML_INVALID")
 
+    def test_foreign_default_namespace_root_is_rejected_by_cli(self) -> None:
+        archive = self.root / "foreign-root.zip"
+        self._write_zip(
+            archive,
+            [
+                (
+                    "export.xml",
+                    b'<HealthData xmlns="urn:foreign"><Record type="HKQuantityTypeIdentifierStepCount"/></HealthData>',
+                )
+            ],
+        )
+        self._assert_fail(self._run(archive=archive), "XML_INVALID")
+
+    def test_foreign_namespace_records_are_not_counted_by_cli(self) -> None:
+        archive = self.root / "foreign-records.zip"
+        xml = (
+            b'<HealthData xmlns:f="urn:foreign">'
+            b'<f:Record type="HKQuantityTypeIdentifierStepCount" sourceName="Foreign"/>'
+            b'<Record xmlns="urn:foreign" type="HKQuantityTypeIdentifierStepCount" sourceName="Also foreign"/>'
+            b'<Record type="HKQuantityTypeIdentifierStepCount" sourceName="Exact"/>'
+            b"</HealthData>"
+        )
+        self._write_zip(archive, [("export.xml", xml)])
+        raw = archive.read_bytes()
+        descriptor = [["present", "Exact"], ["missing"], ["missing"]]
+        content = {
+            "catalogue_schema": "mesh-health-catalogue-v1",
+            "archive_sha256": hashlib.sha256(raw).hexdigest(),
+            "archive_bytes": len(raw),
+            "xml_member": "export.xml",
+            "record_count_all_types": 1,
+            "families": {
+                "steps": [group("steps", descriptor, 1)],
+                "hrv_sdnn": [],
+                "sleep": [],
+            },
+        }
+        self._write_json(self.catalogue_path, envelope(content))
+        self._assert_pass(self._run(archive=archive))
+
     def test_external_doctype_and_entity_are_refused(self) -> None:
         cases = (
             b'<!DOCTYPE HealthData SYSTEM "file:///private/secret.dtd"><HealthData/>',
@@ -595,14 +635,22 @@ class VerifierTests(unittest.TestCase):
         )
 
     def test_invalid_arguments_have_fixed_private_diagnostic(self) -> None:
-        result = subprocess.run(
-            [sys.executable, str(SCRIPT), "--unknown", "PRIVATE_ARGUMENT"],
-            text=True,
-            capture_output=True,
-            check=False,
+        argument_sets = (
+            ("--unknown", "PRIVATE_ARGUMENT"),
+            ("--help",),
+            ("-h",),
         )
-        self._assert_fail(result, "ARGUMENTS_INVALID")
-        self.assertNotIn("PRIVATE_ARGUMENT", result.stdout + result.stderr)
+        for arguments in argument_sets:
+            with self.subTest(arguments=arguments):
+                result = subprocess.run(
+                    [sys.executable, str(SCRIPT), *arguments],
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self._assert_fail(result, "ARGUMENTS_INVALID")
+                self.assertNotIn("PRIVATE_ARGUMENT", result.stdout + result.stderr)
+                self.assertEqual(len(result.stdout.splitlines()), 1)
 
 
 if __name__ == "__main__":
