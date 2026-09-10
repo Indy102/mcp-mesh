@@ -264,6 +264,13 @@ def _parse_timestamp(value: object) -> datetime | None:
     return None
 
 
+def _convert_timezone(value: datetime, target: timezone | ZoneInfo) -> datetime | None:
+    try:
+        return value.astimezone(target)
+    except (OverflowError, ValueError):
+        return None
+
+
 def _family(record_type: str | None, category: str | None) -> str | None:
     if record_type == STEP_TYPE:
         return "steps"
@@ -309,13 +316,18 @@ class PresenceHandler(ContentHandler):
         end = _parse_timestamp(attributes.get("endDate"))
         if start is None or end is None:
             return
-        start_utc = start.astimezone(timezone.utc)
-        end_utc = end.astimezone(timezone.utc)
+        start_utc = _convert_timezone(start, timezone.utc)
+        end_utc = _convert_timezone(end, timezone.utc)
+        if start_utc is None or end_utc is None:
+            return
         if end_utc < start_utc:
             return
 
         if family == "hrv_sdnn":
-            local_date = start_utc.astimezone(self.contract.timezone).date()
+            local_start = _convert_timezone(start_utc, self.contract.timezone)
+            if local_start is None:
+                return
+            local_date = local_start.date()
             if local_date in self.counts[family]:
                 self.counts[family][local_date] += 1
             return
@@ -323,7 +335,10 @@ class PresenceHandler(ContentHandler):
         if start_utc == end_utc:
             if family != "steps":
                 return
-            local_date = start_utc.astimezone(self.contract.timezone).date()
+            local_start = _convert_timezone(start_utc, self.contract.timezone)
+            if local_start is None:
+                return
+            local_date = local_start.date()
             if local_date in self.counts[family]:
                 self.counts[family][local_date] += 1
             return

@@ -406,6 +406,26 @@ class PresenceVerifierTest(unittest.TestCase):
                 completed, output = self.run_verifier(archive, report)
                 self.assert_failure(completed, output, "invalid_report_parameters")
 
+    def test_treats_timestamp_conversion_overflow_as_an_invalid_record(self) -> None:
+        cases = (
+            # Converting this fixed-offset instant to UTC would underflow year 1.
+            ("utc_underflow", "0001-01-01 00:00:00 +1400"),
+            # UTC conversion succeeds, but conversion to New York underflows.
+            ("report_timezone_underflow", "0001-01-01 00:00:00 +0000"),
+        )
+        for name, timestamp in cases:
+            with self.subTest(name=name):
+                archive = self.write_archive(
+                    [record(HRV, timestamp, timestamp, unit="ms", value="20")]
+                )
+                report = self.write_report(self.report_for(archive))
+
+                completed, output = self.run_verifier(archive, report)
+
+                self.assertEqual(completed.returncode, 0)
+                self.assertEqual(output["status"], "PASS")
+                self.assertEqual(output["checks"]["daily_counts"], "PASS")
+
     def test_rejects_missing_archive_or_report_with_structured_failure(self) -> None:
         missing_archive = self.root / "missing.zip"
         missing_report = self.root / "missing.json"
