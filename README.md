@@ -16,6 +16,9 @@ documentation and distribution packaging are new; this snapshot is a new
 distribution, not the original accepted archive. Private development history,
 personal data, and local evidence are excluded. See the [public-copy verification](docs/VERIFICATION.md) and [third-party notices](docs/THIRD_PARTY.md).
 
+A separate [Health observation preparation experiment](docs/HEALTH_ADAPTER_D1.md)
+provides private, freshly replayed batches without production Health registration.
+
 ## Run the validation
 
 From the repository root, use Git, `uv`, and Python 3.13, the accepted milestone's
