@@ -306,6 +306,30 @@ class CLITests(unittest.TestCase):
         self.assertEqual(payload['status'], 'PASS' if expected == 0 else 'FAIL')
         return payload
 
+    def test_import_preserves_discovery_resolution_and_search_path(self):
+        # A dependency directory has its own test_interoperation.py. Importing
+        # the evaluator must not make that unrelated module shadow this caller.
+        (self.root / 'test_interoperation.py').write_text('SYNTHETIC_MARKER = True\n')
+        script = """
+import importlib.util
+from pathlib import Path
+import sys
+sys.path.insert(0, sys.argv[1])
+sys.path.insert(0, sys.argv[2])
+before_path = list(sys.path)
+before_origin = importlib.util.find_spec('test_interoperation').origin
+assert Path(before_origin).parent == Path(sys.argv[2])
+import evaluate
+assert importlib.util.find_spec('test_interoperation').origin == before_origin
+assert sys.path == before_path
+"""
+        process = subprocess.run([sys.executable, '-c', script,
+                                  str(Path(evaluate.__file__).parent), str(self.root)],
+                                 capture_output=True, text=True)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(process.stdout, '')
+        self.assertEqual(process.stderr, '')
+
     def test_public_cli_private_exact_deterministic_report(self):
         self.command()
         self.assertEqual(stat.S_IMODE(self.output.stat().st_mode), 0o600)

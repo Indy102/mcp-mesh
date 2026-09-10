@@ -14,8 +14,14 @@ import zipfile
 import zlib
 from xml.parsers import expat
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'health_catalogue'))
-import catalogue
+# Loading a sibling dependency must not change later caller/test discovery.
+_import_path = sys.path[:]
+try:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'health_catalogue'))
+    import catalogue
+finally:
+    sys.path[:] = _import_path
+    del _import_path
 from steps_core import Accumulator
 from steps_time import StepsError, day_intervals, pinned_zone, window_dates
 
