@@ -53,6 +53,12 @@ class ProbeCliTests(unittest.TestCase):
                 archive.writestr(name, contents)
         return path
 
+    def make_named_archive(self, name, xml):
+        path = self.root / name
+        with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("apple_health_export/export.xml", xml)
+        return path
+
     def run_probe(self, archive, *, timezone="America/New_York", as_of="2024-01-04",
                   days="3"):
         return subprocess.run(
@@ -160,6 +166,36 @@ class ProbeCliTests(unittest.TestCase):
         self.assertIsNone(day["within_source_overlap"])
         self.assertIsNone(day["cross_source_overlap"])
 
+    def test_skipped_civil_date_remains_empty_during_interval_attribution(self):
+        archive = self.make_archive(export_xml(
+            record(STEP, "2011-12-29 12:00:00 -1000", "2011-12-31 12:00:00 +1400",
+                   sourceName="A", unit="count", value="1"),
+        ))
+        report = self.measured(
+            archive, timezone="Pacific/Apia", as_of="2012-01-01", days="3",
+        )
+        days = self.by_date(report, "steps")
+        self.assertEqual(days["2011-12-29"]["time_valid_record_count"], 1)
+        self.assertEqual(days["2011-12-30"]["time_valid_record_count"], 0)
+        self.assertEqual(days["2011-12-31"]["time_valid_record_count"], 1)
+
+    def test_unrepresentable_point_local_date_is_counted_invalid_without_traceback(self):
+        archive = self.make_archive(export_xml(
+            record(HRV, "0001-01-01 00:00:00 +0000", "0001-01-01 00:00:00 +0000",
+                   sourceName="Boundary Source", unit="ms", value="1"),
+        ))
+        completed = self.run_probe(
+            archive, timezone="America/New_York", as_of="0001-01-02", days="1",
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertNotIn("Traceback", completed.stderr)
+        report = json.loads(completed.stdout)
+        family = report["families"]["hrv_sdnn"]
+        self.assertEqual(family["whole_export_record_count"], 1)
+        self.assertEqual(family["invalid_time_record_count"], 1)
+        self.assertEqual(family["records_intersecting_window"], 0)
+        self.assertEqual(family["daily"][0]["time_valid_record_count"], 0)
+
     def test_duplicate_candidates_and_overlap_diagnostics(self):
         first = record(STEP, "2024-01-01 09:00:00 +0000", "2024-01-01 11:00:00 +0000",
                        sourceName="A", unit="count", value="2")
@@ -236,6 +272,23 @@ class ProbeCliTests(unittest.TestCase):
         self.assertNotIn("Secret A", rendered)
         self.assertNotIn("Secret B", rendered)
 
+    def test_nested_metadata_is_detached_without_losing_record_attributes(self):
+        nested = (
+            f"  <Record type={quoteattr(STEP)} "
+            "startDate=\"2024-01-01 01:00:00 +0000\" "
+            "endDate=\"2024-01-01 01:00:00 +0000\" "
+            "sourceName=\"Synthetic Source\" unit=\"count\" value=\"1\">\n"
+            "    <MetadataEntry key=\"Private Note\" value=\"Private Location\"/>\n"
+            "  </Record>"
+        )
+        report = self.measured(self.make_archive(export_xml(nested)), timezone="UTC",
+                               as_of="2024-01-02", days="1")
+        day = self.by_date(report, "steps")["2024-01-01"]
+        self.assertEqual(day["time_valid_record_count"], 1)
+        rendered = json.dumps(report)
+        self.assertNotIn("Private Note", rendered)
+        self.assertNotIn("Private Location", rendered)
+
     def test_bad_times_and_zero_length_sleep_are_invalid(self):
         archive = self.make_archive(export_xml(
             record(STEP, None, "2024-01-01 01:00:00 +0000", unit="count", value="1"),
@@ -293,6 +346,25 @@ class ProbeCliTests(unittest.TestCase):
                 expected = None if name == "hrv_sdnn" else False
                 self.assertEqual(day["within_source_overlap"], expected)
                 self.assertEqual(day["cross_source_overlap"], expected)
+
+    def test_streaming_parser_memory_does_not_scale_with_whole_export_elements(self):
+        def unrelated_export(count):
+            return ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<HealthData>\n" +
+                    "  <Record type=\"UnrelatedSyntheticType\"/>\n" * count +
+                    "</HealthData>\n")
+
+        small = self.make_named_archive("small.zip", unrelated_export(5_000))
+        large = self.make_named_archive("large.zip", unrelated_export(50_000))
+        small_peak = self.measured(small, timezone="UTC", as_of="2024-01-02", days="1")[
+            "measurement"]["peak_traced_memory_bytes"]
+        large_peak = self.measured(large, timezone="UTC", as_of="2024-01-02", days="1")[
+            "measurement"]["peak_traced_memory_bytes"]
+
+        self.assertLess(
+            large_peak,
+            small_peak * 2,
+            f"peak traced memory scaled from {small_peak} to {large_peak} bytes",
+        )
 
     def test_invalid_arguments_fail_without_success_json(self):
         archive = self.make_archive(export_xml())

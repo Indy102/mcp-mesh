@@ -16,6 +16,7 @@ import sys
 import time
 import tracemalloc
 import zipfile
+from bisect import bisect_left, bisect_right
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, time as datetime_time, timedelta
@@ -88,6 +89,13 @@ class FamilyState:
 
     def __post_init__(self) -> None:
         self.records_by_date = {day: [] for day in self.dates}
+
+
+@dataclass(frozen=True)
+class ReportingWindow:
+    dates: tuple[date, ...]
+    utc_starts: tuple[datetime, ...]
+    utc_ends: tuple[datetime, ...]
 
 
 class SourceAnonymizer:
@@ -200,30 +208,57 @@ def utc_day_bounds(day: date, timezone: ZoneInfo) -> tuple[datetime, datetime]:
     return start.astimezone(UTC), end.astimezone(UTC)
 
 
+def make_reporting_window(dates: tuple[date, ...],
+                          timezone: ZoneInfo) -> ReportingWindow:
+    try:
+        bounds = tuple(utc_day_bounds(day, timezone) for day in dates)
+    except (OverflowError, ValueError) as exc:
+        raise ProbeError("reporting window cannot be represented in the timezone") from exc
+    return ReportingWindow(
+        dates=dates,
+        utc_starts=tuple(start for start, _ in bounds),
+        utc_ends=tuple(end for _, end in bounds),
+    )
+
+
 def attributed_dates(record: PresenceRecord, state: FamilyState,
-                     timezone: ZoneInfo) -> tuple[date, ...]:
+                     timezone: ZoneInfo,
+                     window: ReportingWindow) -> tuple[date, ...] | None:
     if record.family == "hrv_sdnn" or record.start == record.end:
-        local_day = record.start.astimezone(timezone).date()
+        try:
+            local_day = record.start.astimezone(timezone).date()
+        except (OverflowError, ValueError):
+            return None
         return (local_day,) if local_day in state.records_by_date else ()
 
-    matched = []
-    for day in state.dates:
-        day_start, day_end = utc_day_bounds(day, timezone)
-        if record.start < day_end and record.end > day_start:
-            matched.append(day)
-    return tuple(matched)
+    if record.end <= window.utc_starts[0] or record.start >= window.utc_ends[-1]:
+        return ()
+    first = bisect_right(window.utc_ends, record.start)
+    stop = bisect_left(window.utc_starts, record.end)
+    return tuple(
+        window.dates[index]
+        for index in range(first, stop)
+        if (window.utc_starts[index] < window.utc_ends[index]
+            and record.start < window.utc_ends[index]
+            and record.end > window.utc_starts[index])
+    )
 
 
 def local_name(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]
 
 
-def process_export(member, states: dict[str, FamilyState], timezone: ZoneInfo) -> int:
+def process_export(member, states: dict[str, FamilyState], timezone: ZoneInfo,
+                   window: ReportingWindow) -> int:
     sources = SourceAnonymizer()
     unknown_sleep_count = 0
+    open_elements = []
     try:
-        elements = ElementTree.iterparse(member, events=("end",))
-        for _, element in elements:
+        elements = ElementTree.iterparse(member, events=("start", "end"))
+        for event, element in elements:
+            if event == "start":
+                open_elements.append(element)
+                continue
             if local_name(element.tag) == "Record":
                 attributes = element.attrib
                 family = classify_record(attributes)
@@ -253,20 +288,24 @@ def process_export(member, states: dict[str, FamilyState], timezone: ZoneInfo) -
                             raw_value_text=attributes.get("value"),
                             quantity_issue=has_quantity_issue(family, attributes),
                         )
-                        dates = attributed_dates(record, state, timezone)
-                        if dates:
+                        dates = attributed_dates(record, state, timezone, window)
+                        if dates is None:
+                            state.invalid_time_record_count += 1
+                        elif dates:
                             state.records_intersecting_window += 1
                             for day in dates:
                                 state.records_by_date[day].append(record)
             element.clear()
+            open_elements.pop()
+            if open_elements:
+                open_elements[-1].remove(element)
     except ElementTree.ParseError as exc:
         raise ProbeError("export.xml is malformed XML") from exc
     return unknown_sleep_count
 
 
-def overlap_flags(records: list[PresenceRecord], day: date,
-                  timezone: ZoneInfo) -> tuple[bool, bool]:
-    day_start, day_end = utc_day_bounds(day, timezone)
+def overlap_flags(records: list[PresenceRecord], day_start: datetime,
+                  day_end: datetime) -> tuple[bool, bool]:
     unique: dict[tuple[object, ...], PresenceRecord] = {}
     for record in records:
         unique.setdefault(record.candidate_key, record)
@@ -294,9 +333,9 @@ def overlap_flags(records: list[PresenceRecord], day: date,
     return within_source, cross_source
 
 
-def render_family(state: FamilyState, timezone: ZoneInfo) -> dict[str, object]:
+def render_family(state: FamilyState, window: ReportingWindow) -> dict[str, object]:
     daily = []
-    for day in state.dates:
+    for index, day in enumerate(state.dates):
         records = state.records_by_date[day]
         source_counts = Counter(record.source_group for record in records)
         candidates = Counter(record.candidate_key for record in records)
@@ -306,7 +345,7 @@ def render_family(state: FamilyState, timezone: ZoneInfo) -> dict[str, object]:
             cross_source_overlap = None
         else:
             within_source_overlap, cross_source_overlap = overlap_flags(
-                records, day, timezone,
+                records, window.utc_starts[index], window.utc_ends[index],
             )
         daily.append({
             "date": day.isoformat(),
@@ -339,6 +378,7 @@ def build_report(archive_path: Path, timezone_name: str, as_of: date,
 
     timezone = parse_timezone(timezone_name)
     dates = reporting_dates(as_of, days)
+    window = make_reporting_window(dates, timezone)
     states = {name: FamilyState(name, dates) for name in FAMILY_NAMES}
     captured_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
     started = time.perf_counter()
@@ -354,12 +394,14 @@ def build_report(archive_path: Path, timezone_name: str, as_of: date,
                 if len(members) != 1:
                     raise ProbeError("archive must contain exactly one export.xml member")
                 with archive.open(members[0], "r") as member:
-                    unknown_sleep_count = process_export(member, states, timezone)
+                    unknown_sleep_count = process_export(
+                        member, states, timezone, window,
+                    )
         except (zipfile.BadZipFile, zipfile.LargeZipFile) as exc:
             raise ProbeError("archive is not a readable ZIP") from exc
 
         families = {
-            name: render_family(states[name], timezone)
+            name: render_family(states[name], window)
             for name in FAMILY_NAMES
         }
         runtime_seconds = time.perf_counter() - started
