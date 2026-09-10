@@ -157,3 +157,11 @@ The store is local, single-machine, and single-writer. There is no authenticatio
 layer or hosted service. [Architecture](docs/ARCHITECTURE.md) explains snapshot
 consistency, provenance, and the boundaries between runtime tools and broader
 contract fixtures.
+
+## Source feasibility work
+
+The standalone [Health record-presence probes](spikes/health_coverage/README.md)
+investigate daily sample presence and overlap using synthetic tests and an
+independent count checker. They do not produce Health metric totals or enable a
+Health adapter. Real exports and investigation results stay outside this public
+repository.
