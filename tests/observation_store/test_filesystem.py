@@ -203,3 +203,38 @@ class Filesystem(unittest.TestCase):
         source=self.path/'synthetic.zip'; source.write_bytes(b'x')
         with patch.object(f.os,'fsync',side_effect=OSError(errno.EIO,'private')):
             with self.assertRaisesRegex(StoreError,'STORAGE_ERROR'): f.capture_archive(source,self.stage,'flush')
+
+    def test_reserve_final_symlink_refused_parent_alias_allowed(self):
+        target = self.path/'new-target'
+        alias = self.path/'existing-alias'
+        alias.symlink_to(target)
+        with self.assertRaisesRegex(StoreError, 'STORE_EXISTS'):
+            f.reserve_root(alias)
+        self.assertTrue(alias.is_symlink())
+        self.assertFalse(target.exists())
+        parent_alias = self.path/'parent-alias'
+        parent_alias.symlink_to(self.path)
+        parent, root = f.reserve_root(parent_alias/'through-parent')
+        try:
+            info = (self.path/'through-parent').stat()
+            self.assertEqual(root.identity, (info.st_dev, info.st_ino))
+        finally:
+            root.close(); parent.close()
+
+    def test_capture_source_disappearance_and_read_error(self):
+        source = self.path/'synthetic.zip'
+        source.write_bytes(b'abc')
+        original = f.write_all
+        def remove(fd, blob):
+            original(fd, blob)
+            source.unlink()
+        with patch.object(f, 'write_all', side_effect=remove):
+            with self.assertRaisesRegex(StoreError, 'INPUT_CHANGED'):
+                f.capture_archive(source, self.stage, 'removed')
+        source.write_bytes(b'abc')
+        with patch.object(f.os, 'read', side_effect=OSError(errno.EIO, 'private source')):
+            with self.assertRaisesRegex(StoreError, 'INPUT_CHANGED'):
+                f.capture_archive(source, self.stage, 'read-error')
+        with patch.object(f.os, 'write', side_effect=OSError(errno.ENOSPC, 'private destination')):
+            with self.assertRaisesRegex(StoreError, 'STORAGE_ERROR'):
+                f.capture_archive(source, self.stage, 'write-error')

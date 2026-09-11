@@ -144,10 +144,13 @@ class CheckedDir:
 def reserve_root(path):
     """Return (private_parent, newly_created_root); caller owns both handles."""
     require_platform()
-    resolved = reject_location(path)
-    parent = CheckedDir.open(resolved.parent)
+    # Resolve parent aliases, but preserve the caller's final entry for mkdir's
+    # exclusive existence check (including dangling symlinks).
+    requested = Path(path).absolute()
+    name = _name(requested.name)
+    parent = CheckedDir.open(reject_location(requested.parent))
     try:
-        root = parent.mkdir(resolved.name)
+        root = parent.mkdir(name)
         return parent, root
     except BaseException:
         parent.close()
@@ -352,12 +355,24 @@ def capture_archive(path, destination, name):
             raise StoreError('INPUT_CHANGED')
         h, size = hashlib.sha256(), 0
         with regular(destination, name, create=True) as output:
-            while chunk := os.read(fd, CHUNK):
+            while True:
+                # Classify source I/O here before regular(create=True) can
+                # translate an escaping OSError as a destination failure.
+                try:
+                    chunk = os.read(fd, CHUNK)
+                except OSError:
+                    raise StoreError('INPUT_CHANGED') from None
+                if not chunk:
+                    break
                 write_all(output, chunk)
                 h.update(chunk)
                 size += len(chunk)
-            if (before != _signature(os.fstat(fd)) or before_link != _signature(path.lstat())
-                    or resolved != path.resolve(strict=True) or before != _signature(path.stat())):
+            try:
+                changed = (before != _signature(os.fstat(fd)) or before_link != _signature(path.lstat())
+                           or resolved != path.resolve(strict=True) or before != _signature(path.stat()))
+            except OSError:
+                raise StoreError('INPUT_CHANGED') from None
+            if changed:
                 raise StoreError('INPUT_CHANGED')
             try:
                 os.fsync(output)
