@@ -80,7 +80,9 @@ Result fields: `schema_version=health-observation-result-v1`, `store_id`,
 For COMMITTED: intent digest/batch IDs/full verification are non-null and match the
 intent and batch exactly; error is null. For FAILED/INTERRUPTED: batch fields and
 verification are null, error is a fixed code; intent digest is required when an
-intent was published. A failed result never carries an old batch as its result.
+intent was published. A failed result never carries an old batch as its result. Import returns these
+FAILED bytes only after recording succeeds; otherwise it raises a safe error.
+Callers inspect outcome, and the CLI reports FAILED as failure, never PASS.
 These operational fields do not enter D1's deterministic batch or its identity.
 
 Each new import requires an explicit caller-owned `attempt_id` before execution;
