@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -12,7 +13,7 @@ from observation_store import store as s
 from observation_store import __main__ as cli
 from observation_store.contracts import canonical
 from observation_store.errors import StoreError
-from helpers import fixture, ROOT, tree
+from helpers import fixture, ROOT, tree, source_copy
 
 
 class CliTests(unittest.TestCase):
@@ -94,6 +95,47 @@ class CliTests(unittest.TestCase):
         self.assertEqual(json.loads(failure.read_bytes())['error'], 'ATTEMPT_EXISTS')
         self.path = Path(self.temp.name) / 'new-store'
         self.assertTrue(run('init', '--definition', str(self.definition_path))['initialized'])
+
+    def test_marker_free_source_result_and_failure_outputs_before_mutation(self):
+        folder = Path(self.temp.name)
+        source, alias = source_copy(folder)
+        environment = {**os.environ, 'PYTHONPATH': str(source)}
+        check = subprocess.run([sys.executable, '-B', '-c',
+                               'from observation_store import filesystem as fs; print(fs.__file__)'],
+                              cwd=source, env=environment, capture_output=True, timeout=30)
+        self.assertEqual((check.returncode, check.stderr), (0, b''))
+        self.assertEqual(Path(check.stdout.decode().strip()).resolve(), source / 'observation_store/filesystem.py')
+        self.assertFalse((source / '.git').exists())
+        before = tree(folder)
+        for label, parent in (('direct', source / 'private'), ('alias', alias / 'private')):
+            for kind in ('result', 'failure'):
+                with self.subTest(locator=label, kind=kind):
+                    target = folder / (label + '-' + kind + '-store')
+                    output = parent / ('result-' + label + '.json') if kind == 'result' else folder / (label + '-result.json')
+                    arguments = ['init', '--store', str(target), '--store-id', self.sid,
+                                 '--definition', str(self.definition_path), '--output', str(output)]
+                    failure = parent / ('failure-' + label + '.json')
+                    if kind == 'failure':
+                        arguments += ['--failure-output', str(failure)]
+                    run = subprocess.run([sys.executable, '-B', '-m', 'observation_store', *arguments], cwd=source,
+                                         env=environment, capture_output=True, timeout=30)
+                    self.assertEqual((run.returncode, run.stderr), (2, b''))
+                    self.assertEqual(json.loads(run.stdout), {'status': 'FAIL', 'operation': 'init', 'error': 'OUTPUT_INVALID'})
+                    self.assertFalse(target.exists())
+                    self.assertFalse(output.exists())
+                    self.assertFalse(failure.exists())
+                    self.assertEqual(tree(folder), before)
+        # A sibling whose name shares the source prefix is not inside the source tree.
+        external = folder / 'source-unrelated'
+        external.mkdir(mode=0o700)
+        target, output = external / 'store', external / 'result.json'
+        run = subprocess.run([sys.executable, '-B', '-m', 'observation_store', 'init', '--store', str(target),
+                              '--store-id', self.sid, '--definition', str(self.definition_path), '--output', str(output)],
+                             cwd=source, env=environment, capture_output=True, timeout=30)
+        self.assertEqual((run.returncode, run.stderr), (0, b''))
+        self.assertEqual(json.loads(run.stdout), {'status': 'PASS', 'operation': 'init', 'error': None})
+        self.assertTrue(json.loads(output.read_bytes())['initialized'])
+        self.assertTrue((target / 'manifest.json').exists())
 
 
 if __name__ == '__main__':

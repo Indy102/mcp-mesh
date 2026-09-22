@@ -1,6 +1,7 @@
 """Disposable synthetic files; real macOS exclusive rename and bounded workers."""
 import errno
 import hashlib
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -11,6 +12,8 @@ import unittest
 from unittest.mock import patch
 from observation_store import filesystem as f
 from observation_store.errors import StoreError
+from helpers import source_copy, tree
+from test_contracts import fixtures
 
 
 @unittest.skipUnless(sys.platform == 'darwin', 'macOS interface')
@@ -81,6 +84,49 @@ class Filesystem(unittest.TestCase):
         (outside/'.git').rmdir()
         (outside/'current.json').write_bytes(b'{}')
         with self.assertRaises(StoreError): f.reserve_root(alias/'new')
+
+    def test_marker_free_executing_source_api_boundary(self):
+        source, alias = source_copy(self.path)
+        definition = self.path / 'definition.json'
+        definition.write_text(json.dumps(fixtures()[0]['definition']))
+        before = tree(source)
+        code = r"""
+import json
+from pathlib import Path
+import sys
+import uuid
+from observation_store import initialize, StoreError
+from observation_store import filesystem as fs
+source, alias, definition = map(Path, sys.argv[1:])
+assert Path(fs.__file__).resolve() == source / 'observation_store/filesystem.py'
+assert not (source / '.git').exists()
+expected = json.loads(definition.read_bytes())
+results = {}
+for label, parent in [('direct', source), ('alias', alias)]:
+    try:
+        fs.reject_location(parent)
+        results[label + '_root'] = 'ACCEPTED'
+    except StoreError as error:
+        results[label + '_root'] = error.code
+    target = parent / 'private' / ('store-' + label)
+    try:
+        initialize(target, str(uuid.uuid4()), expected)
+        results[label + '_store'] = 'ACCEPTED'
+    except StoreError as error:
+        results[label + '_store'] = error.code
+    results[label + '_created'] = target.exists()
+external = source.parent / 'source-unrelated'
+external.mkdir(mode=0o700)
+results['external'] = json.loads(initialize(external / 'store', str(uuid.uuid4()), expected))['initialized']
+print(json.dumps(results))
+"""
+        run = subprocess.run([sys.executable, '-B', '-c', code, str(source), str(alias), str(definition)], cwd=source,
+                             env={**os.environ, 'PYTHONPATH': str(source)}, capture_output=True, timeout=30)
+        self.assertEqual((run.returncode, run.stderr), (0, b''))
+        self.assertEqual(json.loads(run.stdout), {'direct_root': 'OUTPUT_INVALID', 'alias_root': 'OUTPUT_INVALID',
+                         'direct_store': 'OUTPUT_INVALID', 'alias_store': 'OUTPUT_INVALID',
+                         'direct_created': False, 'alias_created': False, 'external': True})
+        self.assertEqual(tree(source), before)
 
     def test_nested_thread_process_alias_lock(self):
         alias = self.path/'alias'

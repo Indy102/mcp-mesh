@@ -1,5 +1,6 @@
 """Invented source fixture using the public catalogue commands and real D1."""
 import json
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -29,3 +30,15 @@ def fixture(folder, repeated=False):
 
 def tree(path):
     return {str(p.relative_to(path)): (p.stat().st_mode, p.read_bytes() if p.is_file() else None) for p in path.rglob('*')}
+
+
+def source_copy(folder):
+    """Execute actual packages from a marker-free distribution, without caches."""
+    source = folder.resolve() / 'source'
+    source.mkdir(mode=0o700)
+    for package in ('observation_store', 'adapters'):
+        shutil.copytree(ROOT / package, source / package, ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+    (source / 'private').mkdir(mode=0o700)
+    alias = folder.resolve() / 'source-alias'
+    alias.symlink_to(source, target_is_directory=True)
+    return source, alias

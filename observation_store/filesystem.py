@@ -16,6 +16,8 @@ from .errors import StoreError
 # const char *, unsigned int); RENAME_EXCL = 0x00000004. No fallback.
 RENAME_EXCL = 0x4
 CHUNK = 1024 * 1024
+# A source-only delivery has no .git marker; protect the code we execute too.
+SOURCE_ROOT = Path(__file__).resolve().parents[1]
 _registry_guard = threading.Lock()
 _registry = {}
 _registry_pid = os.getpid()
@@ -46,9 +48,11 @@ def _private(s, directory=False):
 
 
 def reject_location(path):
-    """Reject canonical code/RC2 ancestors, including aliases into those trees."""
+    """Reject executing source root and marked code/RC2 ancestors, including aliases."""
     path = Path(path).absolute()
     resolved = path.resolve(strict=False)
+    if resolved == SOURCE_ROOT or SOURCE_ROOT in resolved.parents:
+        raise StoreError('OUTPUT_INVALID')
     for candidate in (path, resolved):
         for ancestor in (candidate, *candidate.parents):
             if any((ancestor / marker).exists() for marker in ('.git', 'current.json', 'generations')):

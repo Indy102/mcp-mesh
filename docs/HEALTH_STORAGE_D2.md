@@ -19,7 +19,12 @@ terminal evidence. A raised exception does not imply a terminal record exists.
 Definition conflicts/invalid definitions never write an attempt record. There is
 no public commit/prepared-object admission, reset, cleanup, repair, or destroy API.
 
-Create a private 0700 parent outside any code checkout or RC2 directory. The store
+Create a private 0700 parent outside any code checkout or RC2 directory. The
+canonical executing source-distribution root (the directory containing the running
+`observation_store` package) and all its descendants are also refused, even in a
+source-only extraction without `.git`. This known-source guard resolves aliases;
+other checkouts and RC2 trees continue to be recognized by their existing markers.
+It does not claim to identify every unrelated unmarked source directory. The store
 must not exist, including as an empty directory or symlink. Choose and retain your
 own canonical UUID4 store ID and a fresh canonical UUID4 attempt ID for every new
 import. Store ID and the complete D1 definition are immutable. Supply the definition
@@ -50,7 +55,8 @@ A successful recovery command can return a private `FAILED`, `INTERRUPTED`, or
 import. An import with a recorded `FAILED` result writes it to `--output` and exits 2.
 
 Outputs must be new files under an existing private 0700 parent outside store
-roots, code checkouts, RC2 roots and input aliases. Both output locators are checked
+roots, code checkouts, the executing source-distribution tree, RC2 roots and input
+aliases. Both output locators are checked
 before store mutation. Files are published atomically, exclusively, and with mode
 0600. Existing paths are never overwritten. Optional failure evidence contains
 only safe IDs, fixed codes and allowed definition conflict field names. Keep the
@@ -73,8 +79,14 @@ a concurrent later publication may be omitted. A corrupt record causes an explic
 failure rather than a skipped entry or fallback. Reusing a verified batch with a
 new attempt runs D1 again and records a distinct D1 verification receipt; it adds
 no quantities. Copies are hash/length checked against D1, with a fresh source
-recheck immediately before publication. Archive-sized memory and additional staging
-space are currently required; staging and orphan objects are preserved.
+recheck immediately before publication. Equality checks can temporarily require
+roughly three archive lengths of memory, plus Python/runtime and batch overhead.
+Read/list also read and hash complete archives. The first successful import retains
+the committed archive plus a full recheck copy in staging; each identical repeated
+attempt can retain roughly two further archive lengths in staging, plus batch and
+receipt overhead. Failed attempts can leave partial/full copies too. Staging and
+orphans are preserved, with no quota, cleanup or reclamation mechanism. These are
+implementation cost estimates, not measured large-archive capacity guarantees.
 
 For `PUBLICATION_UNKNOWN`, recover the original attempt. A valid committed chain
 is revalidated and reflushed; a valid intent without a terminal result becomes
