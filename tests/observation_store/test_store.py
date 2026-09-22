@@ -279,6 +279,81 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(error.exception.code, 'STORAGE_ERROR')
         self.assertEqual(list((self.path / 'attempts').iterdir()), [])
 
+    def test_published_intent_must_remain_exact_for_success_and_failure(self):
+        for mutation in ('malformed', 'deleted', 'different_receipt'):
+            for fallback in (False, True):
+                with self.subTest(mutation=mutation, fallback=fallback):
+                    attempt = self.attempt()
+                    target = self.path / 'attempts' / (attempt + '.intent.json')
+                    def checkpoint(phase):
+                        if phase != 'after-intent':
+                            return
+                        before = target.stat()
+                        if mutation == 'deleted':
+                            target.unlink()
+                        else:
+                            if mutation == 'malformed':
+                                blob = b'{}'
+                            else:
+                                altered = json.loads(target.read_bytes())
+                                altered['verification']['attempt_id'] = self.attempt()
+                                # Structurally valid and same batch, but not this fresh execution.
+                                s.c.validate_intent(altered)
+                                blob = s.c.canonical(altered)
+                            target.write_bytes(blob)
+                            self.assertEqual(target.stat().st_ino, before.st_ino)
+                        if fallback:
+                            raise StoreError('INPUT_CHANGED')
+                    with patch.object(s, '_checkpoint', side_effect=checkpoint):
+                        with self.assertRaises(StoreError) as error:
+                            self.admit(attempt)
+                    self.assertEqual(error.exception.code, 'STORAGE_ERROR')
+                    self.assertFalse((self.path / 'attempts' / (attempt + '.result.json')).exists())
+                    # Remove only this test's tampered intent to isolate the next probe.
+                    if target.exists():
+                        target.unlink()
+
+    def test_intent_changed_during_result_staging_is_not_adopted(self):
+        for fallback in (False, True):
+            with self.subTest(fallback=fallback):
+                attempt = self.attempt()
+                target = self.path / 'attempts' / (attempt + '.intent.json')
+                original = fs.stage_bytes
+                def changed(directory, name, blob):
+                    original(directory, name, blob)
+                    if directory.name == 'staging' and name.endswith('.json') and not name.endswith('.intent.json'):
+                        altered = json.loads(target.read_bytes())
+                        altered['verification']['attempt_id'] = self.attempt()
+                        s.c.validate_intent(altered)
+                        target.write_bytes(s.c.canonical(altered))
+                def checkpoint(phase):
+                    if fallback and phase == 'after-intent':
+                        raise StoreError('INPUT_CHANGED')
+                with patch.object(fs, 'stage_bytes', side_effect=changed), patch.object(s, '_checkpoint', side_effect=checkpoint):
+                    with self.assertRaises(StoreError) as error:
+                        self.admit(attempt)
+                self.assertEqual(error.exception.code, 'STORAGE_ERROR')
+                self.assertFalse((self.path / 'attempts' / (attempt + '.result.json')).exists())
+                target.unlink()
+
+    def test_intent_damage_with_linked_terminal_failure_stays_unknown(self):
+        attempt = self.attempt()
+        target = self.path / 'attempts' / (attempt + '.intent.json')
+        def checkpoint(phase):
+            if phase == 'after-result-publish':
+                target.write_bytes(b'{}')
+                raise StoreError('STORAGE_ERROR')
+        with patch.object(s, '_checkpoint', side_effect=checkpoint):
+            with self.assertRaises(StoreError) as error:
+                self.admit(attempt)
+        self.assertEqual(error.exception.code, 'PUBLICATION_UNKNOWN')
+        result = json.loads((self.path / 'attempts' / (attempt + '.result.json')).read_bytes())
+        self.assertEqual(result['outcome'], 'COMMITTED')
+        self.assertEqual(len(list((self.path / 'attempts').glob('*.result.json'))), 1)
+        with self.assertRaises(StoreError) as error:
+            s.recover_attempt(self.path, self.id, self.definition, attempt)
+        self.assertEqual(error.exception.code, 'INTEGRITY_ERROR')
+
 
 if __name__ == '__main__':
     unittest.main()

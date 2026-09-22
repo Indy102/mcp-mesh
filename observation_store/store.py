@@ -196,6 +196,21 @@ def _intent(dirs, manifest, attempt):
     return value
 
 
+def _published_intent(dirs, manifest, attempt, expected):
+    """Bind terminal evidence to this operation's original fresh intent bytes."""
+    if expected is None:
+        if attempt + '.intent.json' in _attempt_names(dirs['attempts']):
+            raise StoreError('INTEGRITY_ERROR')
+        return None
+    try:
+        value = _intent(dirs, manifest, attempt)
+        if c.canonical(value) != c.canonical(expected):
+            raise StoreError('INTEGRITY_ERROR')
+        return value
+    except (ValueError, TypeError, KeyError):
+        raise StoreError('INTEGRITY_ERROR') from None
+
+
 def _batch(dirs, manifest, intent):
     value = _json(dirs['batches'], intent['batch_id'] + '.json')
     c.validate_intent(intent, manifest=manifest, attempt_id=intent['attempt_id'], batch=value)
@@ -227,10 +242,16 @@ def _terminal(manifest, attempt, outcome, intent=None, error=None):
 
 
 def _record(root, dirs, manifest, attempt, value, intent=None, batch=None):
-    c.validate_result(value, manifest=manifest, attempt_id=attempt, intent=intent, batch=batch)
+    final_intent = _published_intent(dirs, manifest, attempt, intent)
+    c.validate_result(value, manifest=manifest, attempt_id=attempt, intent=final_intent, batch=batch)
     _manifest(root, manifest['store_id'], manifest)
     name = str(uuid.uuid4()) + '.json'
     fs.stage_bytes(dirs['staging'], name, c.canonical(value))
+    # Recheck actual final-path evidence after staging, immediately before linkage.
+    final_intent = _published_intent(dirs, manifest, attempt, intent)
+    final_batch = _batch(dirs, manifest, final_intent) if value['outcome'] == 'COMMITTED' else None
+    c.validate_result(value, manifest=manifest, attempt_id=attempt, intent=final_intent, batch=final_batch)
+    _manifest(root, manifest['store_id'], manifest)
     try:
         fs.publish(dirs['staging'], name, dirs['attempts'], attempt + '.result.json',
                    _after_link=lambda: _checkpoint('after-result-publish'))
@@ -259,6 +280,7 @@ def import_observations(store_dir, store_id, input_set, expected_definition, att
             if any(attempt_id + suffix in names for suffix in ('.intent.json', '.result.json')):
                 raise StoreError('ATTEMPT_EXISTS')
             intent = None
+            intent_linked = False
             try:
                 try:
                     prepared = prepare_observations(input_set, expected)
@@ -277,7 +299,12 @@ def import_observations(store_dir, store_id, input_set, expected_definition, att
                               identities=d1.identities(batch), verification=receipt)
                 c.validate_intent(intent, manifest=manifest, attempt_id=attempt_id, batch=batch)
                 fs.stage_bytes(dirs['staging'], attempt_id + '.intent.json', c.canonical(intent))
-                fs.publish(dirs['staging'], attempt_id + '.intent.json', dirs['attempts'], attempt_id + '.intent.json')
+                try:
+                    fs.publish(dirs['staging'], attempt_id + '.intent.json', dirs['attempts'], attempt_id + '.intent.json')
+                    intent_linked = True
+                except fs.PublicationError as error:
+                    intent_linked = error.linked_may_have_occurred
+                    raise
                 _checkpoint('after-intent')
                 with dirs['staging'].mkdir(attempt_id) as stage:
                     captured = fs.capture_archive(input_set.archive, stage, 'archive.zip')
@@ -293,7 +320,8 @@ def import_observations(store_dir, store_id, input_set, expected_definition, att
                     confirmed = fs.capture_archive(input_set.archive, stage, 'archive-recheck.zip')
                     if confirmed != captured:
                         raise StoreError('INPUT_CHANGED')
-                _batch(dirs, manifest, intent)
+                final_intent = _published_intent(dirs, manifest, attempt_id, intent)
+                _batch(dirs, manifest, final_intent)
                 _manifest(root, store_id, manifest)
                 for directory, name in ((dirs['archives'], captured.sha256 + '.zip'), (dirs['batches'], batch['batch_id'] + '.json'), (dirs['attempts'], attempt_id + '.intent.json')):
                     fs.flush_file(directory, name)
@@ -310,11 +338,14 @@ def import_observations(store_dir, store_id, input_set, expected_definition, att
                     names = _attempt_names(dirs['attempts'])
                     if attempt_id + '.result.json' in names:
                         raise StoreError('PUBLICATION_UNKNOWN', store_id=store_id, attempt_id=attempt_id)
-                    intent = _intent(dirs, manifest, attempt_id) if attempt_id + '.intent.json' in names else None
-                    value = _terminal(manifest, attempt_id, 'FAILED', intent, code)
-                    return _record(root, dirs, manifest, attempt_id, value, intent)
-                except StoreError as failure:
-                    if failure.code == 'PUBLICATION_UNKNOWN':
+                    if intent_linked or attempt_id + '.intent.json' in names:
+                        failure_intent = _published_intent(dirs, manifest, attempt_id, intent)
+                    else:
+                        failure_intent = None
+                    value = _terminal(manifest, attempt_id, 'FAILED', failure_intent, code)
+                    return _record(root, dirs, manifest, attempt_id, value, failure_intent)
+                except (StoreError, ValueError, TypeError, KeyError, OSError) as failure:
+                    if isinstance(failure, StoreError) and failure.code == 'PUBLICATION_UNKNOWN':
                         raise
                     raise StoreError('STORAGE_ERROR', store_id=store_id, attempt_id=attempt_id) from None
 
