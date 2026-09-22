@@ -35,3 +35,5 @@ jobs:
         run: uv run --locked python -m unittest discover -s spikes/health_steps -p 'test_*.py' -v
       - name: Test pure Health observation preparation with synthetic data
         run: uv run --locked python -m unittest discover -s tests/health_observations -p 'test_*.py' -v
+      - name: Test private Health storage and recovery with synthetic data
+        run: uv run --locked python -m unittest discover -s tests/observation_store -p 'test_*.py' -v

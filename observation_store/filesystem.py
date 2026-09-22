@@ -295,7 +295,7 @@ def _rename_exclusive(source, name, destination, target):
         raise OSError(number, 'exclusive publication failed')
 
 
-def publish(source, name, destination, target, *, allow_reuse=False):
+def publish(source, name, destination, target, *, allow_reuse=False, _after_link=None):
     """Publish an already flushed stage; compare complete bytes on allowed reuse."""
     linked = False
     try:
@@ -313,6 +313,8 @@ def publish(source, name, destination, target, *, allow_reuse=False):
         try:
             _rename_exclusive(source, name, destination, target)
             linked = True
+            if _after_link is not None:
+                _after_link()
         except FileExistsError:
             if not allow_reuse:
                 raise StoreError('OUTPUT_EXISTS') from None

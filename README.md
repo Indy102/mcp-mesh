@@ -186,3 +186,8 @@ keeps verified export observations separate from complete-day metrics. It define
 immutable batches, explicit uncertainty, and admission checks before a future
 adapter or observation store is built. This design does not enable Health in sync,
 weekly comparisons, or inference.
+
+Private Health observation storage (D2) is isolated from RC2 and retains exact D1
+batches with explicit attempt recovery and unknown coverage. See
+[the D2 API, CLI and evidence limits](docs/HEALTH_STORAGE_D2.md). Public tests use
+invented data; process-interruption checks are not power-loss or backup acceptance.
