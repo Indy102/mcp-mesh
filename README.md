@@ -191,3 +191,8 @@ Private Health observation storage (D2) is isolated from RC2 and retains exact D
 batches with explicit attempt recovery and unknown coverage. See
 [the D2 API, CLI and evidence limits](docs/HEALTH_STORAGE_D2.md). Public tests use
 invented data; process-interruption checks are not power-loss or backup acceptance.
+
+The [private Health observation view (D3)](docs/HEALTH_PRESENTATION_D3.md) presents
+one explicitly chosen D2 batch in an offline HTML file. It preserves exact values,
+nulls, reasons and unknown coverage, without changing the store or enabling
+comparisons or inference. HTML snapshots and real Health inputs remain private.
