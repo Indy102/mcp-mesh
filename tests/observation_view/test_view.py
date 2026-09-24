@@ -34,19 +34,56 @@ class Evidence(HTMLParser):
     def __init__(self, html):
         super().__init__(convert_charrefs=True)
         self.tags, self.attributes, self.pre, self.current = [], [], [], None
+        self.report_json, self.primary_rows = None, []
+        self.row, self.cell, self.time, self.reason_code = None, None, None, None
         self.feed(html)
     def handle_starttag(self, tag, attrs):
         self.tags.append(tag)
         self.attributes.extend(attrs)
+        classes = dict(attrs).get('class', '').split()
+        if tag == 'tr' and 'observation-day' in classes:
+            self.row = {'date': [], 'value': [], 'state': [], 'reasons': set()}
+        elif self.row is not None and tag == 'td':
+            self.cell = next((name for name in ('value', 'state', 'reasons') if name in classes), None)
+        elif self.row is not None and tag == 'time':
+            self.time = []
+        elif self.row is not None and self.cell == 'reasons' and tag == 'code':
+            self.reason_code = []
         if tag == 'pre':
-            self.current = []
+            self.current = (dict(attrs).get('id'), [])
     def handle_data(self, data):
         if self.current is not None:
-            self.current.append(data)
+            self.current[1].append(data)
+        if self.time is not None:
+            self.time.append(data)
+        elif self.row is not None and self.cell in ('value', 'state'):
+            self.row[self.cell].append(data)
+        if self.reason_code is not None:
+            self.reason_code.append(data)
     def handle_endtag(self, tag):
         if tag == 'pre':
-            self.pre.append(json.loads(''.join(self.current)))
+            ident, data = self.current
+            parsed = json.loads(''.join(data))
+            self.pre.append(parsed)
+            if ident == 'report-json':
+                self.report_json = parsed
             self.current = None
+        elif tag == 'code' and self.reason_code is not None:
+            self.row['reasons'].add(''.join(self.reason_code))
+            self.reason_code = None
+        elif tag == 'time' and self.time is not None:
+            self.row['date'].extend(self.time)
+            self.time = None
+        elif tag == 'td' and self.row is not None:
+            self.cell = None
+        elif tag == 'tr' and self.row is not None:
+            self.primary_rows.append({
+                'date': ''.join(self.row['date']),
+                'value': ''.join(self.row['value']),
+                'state': ''.join(self.row['state']),
+                'reasons': self.row['reasons'],
+            })
+            self.row = None
 
 
 class ViewTests(unittest.TestCase):
@@ -89,6 +126,13 @@ class ViewTests(unittest.TestCase):
         return create_view(options.get('store', self.store), options.get('sid', self.sid),
                            options.get('bid', self.bid), options.get('output', self.output))
 
+    def assert_primary_rows(self, evidence, report):
+        self.assertEqual(evidence.primary_rows, [
+            {'date': day['date'], 'value': canonical(day['value']).decode('ascii'),
+             'state': day['calculation_state'], 'reasons': set(day['reasons'])}
+            for day in report['days']
+        ])
+
     def refusal(self, expected=None, **options):
         with self.assertRaises(ViewError) as raised:
             self.render(**options)
@@ -102,8 +146,9 @@ class ViewTests(unittest.TestCase):
     def test_real_public_read_exact_report_and_private_publication(self):
         self.assertEqual(json.loads(self.render()), {'status': 'PASS', 'operation': 'view', 'error': None})
         parsed = Evidence(self.output.read_text())
-        self.assertIn(self.batch['report']['report'], parsed.pre)
-        self.assertIn(self.batch['report']['report']['days'][0], parsed.pre)
+        report = self.batch['report']['report']
+        self.assert_primary_rows(parsed, report)
+        self.assertEqual(parsed.report_json, report)
         self.assertEqual(stat.S_IMODE(self.output.stat().st_mode), 0o600)
         self.assertEqual(self.output.stat().st_nlink, 1)
         self.assertNotIn('script', parsed.tags)
@@ -276,7 +321,9 @@ class ViewTests(unittest.TestCase):
             try:
                 self.assertTrue(reached.wait(30))
                 self.render()
-                self.assertIn(self.batch['report']['report'], Evidence(self.output.read_text()).pre)
+                older = Evidence(self.output.read_text())
+                self.assert_primary_rows(older, self.batch['report']['report'])
+                self.assertEqual(older.report_json, self.batch['report']['report'])
             finally:
                 release.set()
             newer = json.loads(future.result(timeout=30))
@@ -286,7 +333,12 @@ class ViewTests(unittest.TestCase):
         report = json.loads(observation_store.read_batch(self.store, self.sid, newer['batch_id']))['report']['report']
         self.assertEqual(report['days'][0]['calculation_state'], 'blocked')
         self.assertIsNone(report['days'][0]['value'])
-        self.assertIn(report, Evidence(other.read_text()).pre)
+        newer_view = Evidence(other.read_text())
+        self.assert_primary_rows(newer_view, report)
+        self.assertEqual(newer_view.report_json, report)
+        self.assertTrue(any(day['value'] is not None and day['value'] > 0 for day in older.report_json['days']))
+        self.assertTrue(any(day['value'] is None for day in newer_view.report_json['days']))
+        self.assertTrue(any(day['state'] == 'blocked' for day in newer_view.primary_rows))
 
     def test_private_renderer_preserves_states_values_and_diagnostic_fields(self):
         batch = copy.deepcopy(self.batch)
@@ -303,12 +355,44 @@ class ViewTests(unittest.TestCase):
         batch['report']['report']['days'] = days
         html = rendering._render(batch, self.sid).decode()
         parsed = Evidence(html)
-        for day in days:
-            self.assertIn(day, parsed.pre)
-        self.assertIn('>0.10000000000000002</td>', html)
-        self.assertIn('>0.0</td>', html)
-        self.assertEqual(html.count('class="observation-day"'), 5)
+        self.assert_primary_rows(parsed, batch['report']['report'])
+        self.assertEqual(parsed.report_json, batch['report']['report'])
         # Pure-renderer fixtures test presentation only; public API validates batches.
+
+    def test_primary_row_assertions_reject_mutations_with_correct_appendix(self):
+        report = {'days': [
+            {'date': '2040-01-01', 'value': 1.0, 'calculation_state': 'computed', 'reasons': []},
+            {'date': '2040-01-02', 'value': None, 'calculation_state': 'blocked', 'reasons': ['fixture_reason']},
+        ]}
+        rows = [
+            {'date': '2040-01-01', 'value': '1.0', 'state': 'computed', 'reasons': set()},
+            {'date': '2040-01-02', 'value': 'null', 'state': 'blocked', 'reasons': {'fixture_reason'}},
+        ]
+        def document(primary_rows):
+            body = ''.join(
+                '<tr class="observation-day"><td><time>{date}</time></td>'
+                '<td class="value">{value}</td><td class="state">{state}</td>'
+                '<td class="reasons">{reasons}</td></tr>'.format(
+                    date=row['date'], value=row['value'], state=row['state'],
+                    reasons=''.join('<code>{}</code>'.format(reason) for reason in row['reasons']))
+                for row in primary_rows)
+            return '<table>{}</table><pre id="report-json">{}</pre>'.format(
+                body, canonical(report).decode('ascii'))
+        self.assert_primary_rows(Evidence(document(rows)), report)
+        mutations = [
+            lambda changed: changed[0].update(date='2040-01-09'),
+            lambda changed: changed.reverse(),
+            lambda changed: changed[0].update(value='2.0'),
+            lambda changed: changed[0].update(state='blocked'),
+            lambda changed: changed[1].update(reasons={'wrong_reason'}),
+        ]
+        for mutate in mutations:
+            changed = copy.deepcopy(rows)
+            mutate(changed)
+            evidence = Evidence(document(changed))
+            self.assertEqual(evidence.report_json, report)
+            with self.assertRaises(AssertionError):
+                self.assert_primary_rows(evidence, report)
 
     def test_hostile_source_labels_stay_text_and_controls_are_visible(self):
         batch = copy.deepcopy(self.batch)
