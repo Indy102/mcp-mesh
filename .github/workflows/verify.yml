@@ -39,3 +39,5 @@ jobs:
         run: uv run --locked python -m unittest discover -s tests/observation_store -p 'test_*.py' -v
       - name: Test private offline Health presentation with synthetic data
         run: uv run --locked python -m unittest discover -s tests/observation_view -p 'test_*.py' -v
+      - name: Test private Health verified backup and fresh recovery with synthetic data
+        run: uv run --locked python -m unittest discover -s tests/observation_backup -p 'test_*.py' -v
