@@ -196,3 +196,8 @@ The [private Health observation view (D3)](docs/HEALTH_PRESENTATION_D3.md) prese
 one explicitly chosen D2 batch in an offline HTML file. It preserves exact values,
 nulls, reasons and unknown coverage, without changing the store or enabling
 comparisons or inference. HTML snapshots and real Health inputs remain private.
+
+The [private Health backup and recovery tools (D4)](docs/HEALTH_RECOVERY_D4.md)
+preserve the complete D2 evidence tree and freshly admit its committed observations
+into a new store identity. Sealed backups and recovery outputs remain private;
+local restoration does not establish external-drive or device-loss protection.
